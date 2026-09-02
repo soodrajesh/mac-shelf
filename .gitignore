@@ -4,6 +4,7 @@ MacTools.app/
 *.swiftmodule
 *.dSYM/
 build/
+*.dmg
 
 # macOS
 .DS_Store
