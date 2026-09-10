@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Same visual card pattern as mac-cleanup's `LicenseManagementView`: leading
 /// icon (spinner while verifying, filled green check if active, hollow gray
-/// circle if not) + two-line label ("MacTools Pro" headline / status caption)
+/// circle if not) + two-line label ("MacPerch Pro" headline / status caption)
 /// inside a `Color(.controlBackgroundColor)` card, corner radius 8, plus a
 /// green/red-tinted result banner below it.
 struct LicenseManagementView: View {
@@ -21,7 +21,7 @@ struct LicenseManagementView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("MacTools Pro")
+                    Text("MacPerch Pro")
                         .appFont(.headline)
                     Text(licenseState.isVerifying
                          ? "Verifying…"
@@ -66,7 +66,7 @@ struct LicenseManagementView: View {
                 Spacer()
 
                 if let url = PolarConfig.checkoutURL {
-                    Button("Buy MacTools Pro") {
+                    Button("Buy MacPerch Pro") {
                         NSWorkspace.shared.open(url)
                     }
                     .buttonStyle(.link)

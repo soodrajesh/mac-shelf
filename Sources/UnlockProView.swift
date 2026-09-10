@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Shown in place of a gated tab's real content when MacTools Pro isn't
+/// Shown in place of a gated tab's real content when MacPerch Pro isn't
 /// licensed — a clear upsell rather than a silently-disabled tab, same
 /// spirit as MacGroom's Pro-gated views. Compact: this popover's tabs are
 /// 260×190, so this has to read at a glance, not as a full marketing panel.
@@ -17,10 +17,10 @@ struct UnlockProView: View {
                 .appFont(.title2)
                 .foregroundStyle(.secondary)
 
-            Text("MacTools Pro")
+            Text("MacPerch Pro")
                 .appFont(.headline)
 
-            Text("\(feature) needs MacTools Pro.")
+            Text("\(feature) needs MacPerch Pro.")
                 .appFont(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

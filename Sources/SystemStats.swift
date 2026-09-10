@@ -6,7 +6,7 @@ import IOKit.storage
 // MARK: - System stats
 //
 // CPU/memory/topProcess ported verbatim from mac-monitor/main.swift.
-// Network and disk I/O added for MacTools.
+// Network and disk I/O added for MacPerch.
 
 enum SystemStats {
     /// Reads the cumulative-since-boot CPU tick counters, summed across all cores.
@@ -207,7 +207,7 @@ func makeStatusAttributedTitle(cpuValue: String, cpuHigh: Bool,
     return combined
 }
 
-/// Bitmap fallback (unused by MacTools menu bar; kept for reference tooling).
+/// Bitmap fallback (unused by MacPerch menu bar; kept for reference tooling).
 func makeStatusImage(cpuValue: String, cpuHigh: Bool,
                       memValue: String, memHigh: Bool,
                       isDark: Bool) -> NSImage {

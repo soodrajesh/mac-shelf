@@ -1,4 +1,4 @@
-# MacTools
+# MacPerch
 
 A single macOS menu-bar app combining live system monitoring, quick widgets,
 clipboard history with a global paste picker, and a scratch notepad. Swift/AppKit
@@ -47,10 +47,10 @@ A gated tab shows an "Unlock Pro" prompt instead of silently disabling itself.
 Both hotkeys stay registered when unlicensed; firing either one opens Settings'
 License tab instead of the picker/notepad.
 
-## MacTools Pro
+## MacPerch Pro
 
 Stats, Calendar, and Calculator are free forever. **Clipboard history**, the
-**Notepad**, and the **⌘⇧V** / **⌘⇧N** global hotkeys are MacTools Pro
+**Notepad**, and the **⌘⇧V** / **⌘⇧N** global hotkeys are MacPerch Pro
 features, unlocked with a license key entered in **Settings → License**
 (right-click the menu bar icon → Settings…).
 
@@ -60,10 +60,10 @@ API, the same backend MacGroom (mac-cleanup) uses, structurally ported from
 `mac-cleanup/Sources/MacGroomLicenseCheck.swift`:
 
 - License key stored under `@AppStorage`/`UserDefaults` key
-  `com.rajeshsood.mactools.licenseKey`; the verified license itself is
+  `com.rajeshsood.macperch.licenseKey`; the verified license itself is
   cached in the Keychain with an HMAC tag so a hand-forged cache entry is
   rejected and forces a real network re-check.
-- `Sources/MacToolsLicenseCheck.swift` — the `LicenseChecker`/`License`
+- `Sources/MacPerchLicenseCheck.swift` — the `LicenseChecker`/`License`
   types and the Polar API call.
 - `Sources/LicenseState.swift` — the app-wide `ObservableObject` source of
   truth for `isProLicensed`, shared by the popover and the Settings window.
@@ -72,12 +72,12 @@ API, the same backend MacGroom (mac-cleanup) uses, structurally ported from
   feature isn't licensed.
 
 **Not yet live** — `PolarConfig.organizationId` in
-`MacToolsLicenseCheck.swift` is a placeholder (`TODO_POLAR_ORGANIZATION_ID`)
-until the MacTools Pro product exists in Polar. Until then, every license
+`MacPerchLicenseCheck.swift` is a placeholder (`TODO_POLAR_ORGANIZATION_ID`)
+until the MacPerch Pro product exists in Polar. Until then, every license
 check 404s and the app fails closed to the free tier — it does not crash.
 See that file's doc comment for the exact TODO checklist (create the
 product + license-key benefit in Polar, fill in the org ID or set
-`MACTOOLS_POLAR_ORG_ID`, set a real checkout URL, rotate the Keychain-cache
+`MACPERCH_POLAR_ORG_ID`, set a real checkout URL, rotate the Keychain-cache
 HMAC key from its placeholder).
 
 ### Notepad editing
@@ -92,9 +92,9 @@ Click inside the text area so it has focus, then use standard shortcuts:
 | **⌘V** | Paste |
 | **⌘Z** / **⌘⇧Z** | Undo / redo |
 
-MacTools installs a hidden **Edit** menu so these work in a menu-bar-only app.
+MacPerch installs a hidden **Edit** menu so these work in a menu-bar-only app.
 
-**Data file:** `~/Library/Application Support/MacTools/notepad.txt`
+**Data file:** `~/Library/Application Support/MacPerch/notepad.txt`
 
 ## Build
 
@@ -104,7 +104,7 @@ Requires the Xcode Command Line Tools (`xcode-select --install`).
 ./build.sh
 ```
 
-Compiles `Sources/*.swift`, renders the app icon, ad-hoc signs, and installs to `/Applications/MacTools.app`.
+Compiles `Sources/*.swift`, renders the app icon, ad-hoc signs, and installs to `/Applications/MacPerch.app`.
 
 ## Before first launch
 
@@ -112,15 +112,15 @@ Quit predecessor apps to avoid duplicate clipboard polling and a **⌘⇧V** con
 
 ```bash
 pkill -f SysMonitor; pkill -f QuickTools; pkill -f ClipKeep
-open /Applications/MacTools.app
+open /Applications/MacPerch.app
 ```
 
 ## Enable auto-paste (optional)
 
-Clipboard auto-paste needs **Accessibility**. MacTools uses a new bundle ID — a
+Clipboard auto-paste needs **Accessibility**. MacPerch uses a new bundle ID — a
 grant to ClipKeep does **not** carry over.
 
-**System Settings → Privacy & Security → Accessibility → enable MacTools**
+**System Settings → Privacy & Security → Accessibility → enable MacPerch**
 
 Without it, picking from history still copies to the clipboard; you paste with **⌘V** in the target app yourself.
 
@@ -133,12 +133,12 @@ Macs where custom `/etc/sudoers.d` files are blocked.
 ### Skip the prompt (optional)
 
 If you can edit sudoers, a narrow **NOPASSWD** rule for `/usr/sbin/purge` only
-lets MacTools run silently (it tries `sudo -n` first):
+lets MacPerch run silently (it tries `sudo -n` first):
 
 ```bash
 echo "$(whoami) ALL=(root) NOPASSWD: /usr/sbin/purge" | \
-  sudo tee /etc/sudoers.d/mactools-purge >/dev/null
-sudo chmod 440 /etc/sudoers.d/mactools-purge
+  sudo tee /etc/sudoers.d/macperch-purge >/dev/null
+sudo chmod 440 /etc/sudoers.d/macperch-purge
 sudo visudo -c
 ```
 
@@ -146,12 +146,12 @@ sudo visudo -c
 
 | Path | Purpose |
 |------|---------|
-| `~/Library/Application Support/MacTools/notepad.txt` | Notepad text |
+| `~/Library/Application Support/MacPerch/notepad.txt` | Notepad text |
 | `~/Library/Application Support/ClipKeep/` | Clipboard history (JSON + image PNGs; shared layout with ClipKeep) |
 
 ## Auto-start at login
 
-**System Settings → General → Login Items & Extensions → +** → `MacTools.app`
+**System Settings → General → Login Items & Extensions → +** → `MacPerch.app`
 
 ## License
 

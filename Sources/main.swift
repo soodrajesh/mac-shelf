@@ -81,7 +81,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if hotKey == nil {
             let message = "Global shortcut ⌘⇧V could not be registered — it may be in use by another app."
-            NSLog("MacTools: \(message)")
+            NSLog("MacPerch: \(message)")
             hotKeyWarnings.append(message)
         }
 
@@ -91,7 +91,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if notepadHotKey == nil {
             let message = "Global shortcut ⌘⇧N could not be registered — it may be in use by another app."
-            NSLog("MacTools: \(message)")
+            NSLog("MacPerch: \(message)")
             hotKeyWarnings.append(message)
         }
 
@@ -244,7 +244,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(settingsItem)
 
         menu.addItem(.separator())
-        let quitItem = NSMenuItem(title: "Quit MacTools", action: #selector(quit), keyEquivalent: "")
+        let quitItem = NSMenuItem(title: "Quit MacPerch", action: #selector(quit), keyEquivalent: "")
         quitItem.target = self
         menu.addItem(quitItem)
 

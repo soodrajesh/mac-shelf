@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<!--
-	No App Sandbox. MacTools is distributed directly as a signed + notarized
+	No App Sandbox. MacPerch is distributed directly as a signed + notarized
 	DMG, not through the Mac App Store, and needs unrestricted access to the
 	user folders and system APIs it works against — none of which survive
 	sandboxing. That's a deliberate distribution choice, not an oversight.

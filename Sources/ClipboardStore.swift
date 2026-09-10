@@ -5,7 +5,7 @@ import Combine
 /// Metadata lives in `history.json`; image content is saved alongside as PNG
 /// files so the JSON stays small and nothing is base64-inflated.
 ///
-/// `ObservableObject` + `@Published items` (added for MacTools, unchanged
+/// `ObservableObject` + `@Published items` (added for MacPerch, unchanged
 /// from ClipKeep otherwise) so the SwiftUI Clipboard tab updates live —
 /// AppKit callers (the ⌘⇧V picker, the right-click menu) are unaffected,
 /// they just read `.items` as before.
