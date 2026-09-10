@@ -26,7 +26,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 	<key>CFBundleShortVersionString</key>
 	<string>1.2</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>6</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSUIElement</key>
@@ -49,12 +49,12 @@ let image = NSImage(size: NSSize(width: size, height: size))
 image.lockFocus()
 
 let bgRect = NSRect(x: 0, y: 0, width: size, height: size)
-NSGradient(starting: NSColor(calibratedRed: 0.20, green: 0.24, blue: 0.34, alpha: 1),
-           ending: NSColor(calibratedRed: 0.06, green: 0.08, blue: 0.13, alpha: 1))?
+NSGradient(starting: NSColor(calibratedRed: 0.88, green: 0.25, blue: 0.55, alpha: 1),
+           ending: NSColor(calibratedRed: 0.45, green: 0.08, blue: 0.28, alpha: 1))?
     .draw(in: bgRect, angle: -90)
 
 let config = NSImage.SymbolConfiguration(pointSize: size * 0.5, weight: .semibold)
-if let symbol = NSImage(systemSymbolName: "square.grid.2x2.fill", accessibilityDescription: nil)?
+if let symbol = NSImage(systemSymbolName: "tray.2.fill", accessibilityDescription: nil)?
         .withSymbolConfiguration(config),
    let cg = symbol.cgImage(forProposedRect: nil, context: nil, hints: nil),
    let ctx = NSGraphicsContext.current?.cgContext {
