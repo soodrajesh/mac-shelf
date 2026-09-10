@@ -18,7 +18,7 @@ final class StatsController: ObservableObject {
     @Published var freeMemStatus = "Free Up Memory"
     @Published var freeMemInProgress = false
 
-    private let queue = DispatchQueue(label: "com.rajeshsood.macperch.stats", qos: .utility)
+    private let queue = DispatchQueue(label: "com.rajeshsood.macshelf.stats", qos: .utility)
     private var prevCPUTicks: (busy: UInt64, total: UInt64)?
     private var prevNetBytes: (rx: UInt64, tx: UInt64)?
     private var prevDiskBytes: (read: UInt64, write: UInt64)?

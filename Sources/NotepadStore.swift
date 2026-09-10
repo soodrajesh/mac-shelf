@@ -2,7 +2,7 @@ import AppKit
 import Combine
 import Foundation
 
-/// Scratch pad persisted under `~/Library/Application Support/MacPerch/notepad.txt`.
+/// Scratch pad persisted under `~/Library/Application Support/MacShelf/notepad.txt`.
 final class NotepadStore: ObservableObject {
     @Published var text: String {
         didSet { scheduleSave() }
@@ -13,7 +13,7 @@ final class NotepadStore: ObservableObject {
 
     init() {
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let dir = support.appendingPathComponent("MacPerch", isDirectory: true)
+        let dir = support.appendingPathComponent("MacShelf", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         fileURL = dir.appendingPathComponent("notepad.txt")
         text = (try? String(contentsOf: fileURL, encoding: .utf8)) ?? ""

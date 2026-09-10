@@ -1,5 +1,5 @@
 # Build output
-MacPerch.app/
+MacShelf.app/
 *.o
 *.swiftmodule
 *.dSYM/

@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// MacPerch' Settings pane, opened via the right-click menu's "Settings…"
+/// MacShelf' Settings pane, opened via the right-click menu's "Settings…"
 /// item (this app has no Dock icon / `Settings` Scene to wire ⌘, to
 /// automatically — see `main.swift`). Tabbed like mac-cleanup's
 /// `SettingsView`: Appearance, Text Size, License, About, in that order per
@@ -75,7 +75,7 @@ private struct AboutTab: View {
         VStack(alignment: .leading, spacing: 8) {
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
 
-            Text("MacPerch \(version)")
+            Text("MacShelf \(version)")
                 .appFont(.headline)
             Text("Menu-bar system monitor, quick tools, clipboard history, and notepad.")
                 .appFont(.callout)
@@ -113,7 +113,7 @@ final class SettingsWindowController {
 
         let hosting = NSHostingController(rootView: SettingsView(licenseState: licenseState))
         let newWindow = NSWindow(contentViewController: hosting)
-        newWindow.title = "MacPerch Settings"
+        newWindow.title = "MacShelf Settings"
         newWindow.styleMask = [.titled, .closable, .miniaturizable]
         newWindow.isReleasedWhenClosed = false
         newWindow.center()

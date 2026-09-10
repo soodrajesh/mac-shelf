@@ -2,8 +2,8 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP="MacPerch.app"
-BIN="MacPerch"
+APP="MacShelf.app"
+BIN="MacShelf"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
@@ -12,21 +12,21 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <plist version="1.0">
 <dict>
 	<key>CFBundleExecutable</key>
-	<string>MacPerch</string>
+	<string>MacShelf</string>
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.rajeshsood.macperch</string>
+	<string>com.rajeshsood.macshelf</string>
 	<key>CFBundleName</key>
-	<string>MacPerch</string>
+	<string>MacShelf</string>
 	<key>CFBundleDisplayName</key>
-	<string>MacPerch</string>
+	<string>MacShelf</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.2</string>
 	<key>CFBundleVersion</key>
-	<string>4</string>
+	<string>5</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>13.0</string>
 	<key>LSUIElement</key>
@@ -102,13 +102,13 @@ TMPBIN="$(mktemp -d)"
 for ARCH in arm64 x86_64; do
   echo "Compiling $ARCH slice…"
   swiftc -O -target "$ARCH-apple-macos$MIN_OS" \
-    -o "$TMPBIN/MacPerch-$ARCH" \
+    -o "$TMPBIN/MacShelf-$ARCH" \
     $SOURCES
 done
-lipo -create -output "$APP/Contents/MacOS/MacPerch" "$TMPBIN/MacPerch-arm64" "$TMPBIN/MacPerch-x86_64"
+lipo -create -output "$APP/Contents/MacOS/MacShelf" "$TMPBIN/MacShelf-arm64" "$TMPBIN/MacShelf-x86_64"
 rm -rf "$TMPBIN"
 
-echo "Built $APP ($(lipo -archs "$APP/Contents/MacOS/MacPerch"))"
+echo "Built $APP ($(lipo -archs "$APP/Contents/MacOS/MacShelf"))"
 
 # --- Sign: hardened runtime + entitlements, no App Sandbox ---
 # A real Developer ID Application identity is used when present. That's what
@@ -130,7 +130,7 @@ if [ -z "$IDENTITY" ]; then
 fi
 # No --deep: Apple deprecated it, and it signs any nested code with the
 # *outer* entitlements. These bundles have no nested code to sign anyway.
-codesign --force --options runtime --entitlements "$(dirname "$0")/MacPerch.entitlements" --sign "$IDENTITY" "$APP"
+codesign --force --options runtime --entitlements "$(dirname "$0")/MacShelf.entitlements" --sign "$IDENTITY" "$APP"
 echo "Signed with: $IDENTITY (hardened runtime on)"
 
 

@@ -2,40 +2,40 @@ import Foundation
 import CryptoKit
 import Security
 
-/// MacPerch Pro licensing.
+/// MacShelf Pro licensing.
 ///
 /// Structurally a port of mac-cleanup's `Sources/MacGroomLicenseCheck.swift`
 /// (MacGroom's actual, currently-shipping implementation — Polar.sh's
 /// customer-portal License Keys API, not the older Lemon Squeezy shape
 /// `macgroom-license-check/INTEGRATION.md` still describes, which is stale).
 /// Same verification flow, same tamper-evident Keychain cache, same error
-/// taxonomy — pointed at a **separate** MacPerch Pro product in Polar, per
+/// taxonomy — pointed at a **separate** MacShelf Pro product in Polar, per
 /// app licensing rather than a Suite Pro bundle.
 ///
 /// ---
 /// ## TODO before this can go live
 ///
 /// `PolarConfig.organizationId` below is a placeholder. Until the real
-/// MacPerch Pro product/license-key benefit exists in the Polar dashboard:
+/// MacShelf Pro product/license-key benefit exists in the Polar dashboard:
 /// - Every `verify()` call will 404 against Polar (mapped to
 ///   `.invalidLicenseKey`) — the app fails closed to the free tier, it does
 ///   not crash.
 /// - Fill in `organizationId` once the product exists (Polar → Organization
 ///   Settings → copy the Organization ID — same place MacGroom's was taken
-///   from), or set the `MACPERCH_POLAR_ORG_ID` environment variable to
+///   from), or set the `MACSHELF_POLAR_ORG_ID` environment variable to
 ///   override it without a rebuild (e.g. for a TestFlight-style dry run).
 enum PolarConfig {
-    // TODO(polar-setup): Create the "MacPerch Pro" product + license-key
+    // TODO(polar-setup): Create the "MacShelf Pro" product + license-key
     // benefit in the Polar dashboard (separate from MacGroom's product —
     // this is per-app licensing, not a bundle), then replace this
     // placeholder with the real Organization ID.
     private static let placeholderOrganizationId = "TODO_POLAR_ORGANIZATION_ID"
 
     static var organizationId: String {
-        ProcessInfo.processInfo.environment["MACPERCH_POLAR_ORG_ID"] ?? placeholderOrganizationId
+        ProcessInfo.processInfo.environment["MACSHELF_POLAR_ORG_ID"] ?? placeholderOrganizationId
     }
 
-    /// `false` until `MACPERCH_POLAR_ORG_ID` is set or the placeholder above
+    /// `false` until `MACSHELF_POLAR_ORG_ID` is set or the placeholder above
     /// is replaced with a real Polar Organization ID. `LicenseChecker.verify`
     /// checks this *before* calling Polar, so a not-yet-configured backend
     /// fails with a distinct "not available yet" message instead of ever
@@ -46,12 +46,12 @@ enum PolarConfig {
     }
 
     /// TODO(polar-setup): once the product exists, fill in its real
-    /// checkout link (Polar → Products → MacPerch Pro → Share → copy
-    /// checkout link) so `LicenseManagementView`'s "Buy MacPerch Pro" button
+    /// checkout link (Polar → Products → MacShelf Pro → Share → copy
+    /// checkout link) so `LicenseManagementView`'s "Buy MacShelf Pro" button
     /// goes somewhere real instead of the gogenops.com product page.
     static var checkoutURL: URL? {
-        URL(string: ProcessInfo.processInfo.environment["MACPERCH_POLAR_CHECKOUT_URL"]
-            ?? "https://gogenops.com/mac-apps/macperch/")
+        URL(string: ProcessInfo.processInfo.environment["MACSHELF_POLAR_CHECKOUT_URL"]
+            ?? "https://gogenops.com/mac-apps/macshelf/")
     }
 }
 
@@ -64,10 +64,10 @@ enum PolarConfig {
 /// from "one shell command" to "extract the embedded key from the compiled
 /// binary"; nothing purely client-side can close that last gap).
 private enum SecureLicenseCache {
-    private static let licenseService = "com.rajeshsood.macperch.license.cache.v1"
+    private static let licenseService = "com.rajeshsood.macshelf.license.cache.v1"
 
     /// Byte-masked so the secret isn't plain text in the binary's strings
-    /// table. This is MacPerch's own key, distinct from MacGroom's —
+    /// table. This is MacShelf's own key, distinct from MacGroom's —
     /// generate a fresh random 25-byte value before shipping rather than
     /// reusing this placeholder.
     // TODO(polar-setup): rotate this to a freshly generated random value
@@ -229,7 +229,7 @@ public enum LicenseCheckError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .notConfigured:
-            return "MacPerch Pro isn't available for purchase yet — check back soon."
+            return "MacShelf Pro isn't available for purchase yet — check back soon."
         case .invalidLicenseKey:
             return "The license key is invalid or not recognized."
         case .networkError(let error):
@@ -249,14 +249,14 @@ public enum LicenseCheckError: LocalizedError {
         case .unknown(let message):
             return message
         case .wrongProduct:
-            return "This license key isn't valid for MacPerch."
+            return "This license key isn't valid for MacShelf."
         }
     }
 }
 
 /// Represents a verified license. `instanceId` stays nil under the Polar
 /// integration unless per-device activation limits are ever turned on for
-/// the MacPerch Pro benefit — kept on the struct for source parity with
+/// the MacShelf Pro benefit — kept on the struct for source parity with
 /// MacGroom's rather than removed.
 public struct License: Codable, Equatable {
     public let key: String

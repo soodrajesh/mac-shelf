@@ -1,7 +1,7 @@
 import Combine
 import Foundation
 
-/// Single source of truth for MacPerch Pro license status.
+/// Single source of truth for MacShelf Pro license status.
 ///
 /// mac-tools has no `App`/`Scene` lifecycle (see `main.swift` — a plain
 /// `NSApplicationDelegate` + `NSApplication.shared.run()`), so there's no
@@ -11,7 +11,7 @@ import Foundation
 /// Settings window's `LicenseManagementView`, so a key entered in Settings
 /// updates Pro gating in the popover immediately without a relaunch.
 final class LicenseState: ObservableObject {
-    static let licenseKeyDefaultsKey = "com.rajeshsood.macperch.licenseKey"
+    static let licenseKeyDefaultsKey = "com.rajeshsood.macshelf.licenseKey"
 
     @Published private(set) var isProLicensed = false
     @Published private(set) var isVerifying = false
@@ -47,7 +47,7 @@ final class LicenseState: ObservableObject {
         do {
             let license = try await checker.verify(licenseKey: key)
             isProLicensed = license.isValid
-            verificationMessage = "License verified — MacPerch Pro unlocked."
+            verificationMessage = "License verified — MacShelf Pro unlocked."
             verificationError = false
         } catch {
             isProLicensed = false
