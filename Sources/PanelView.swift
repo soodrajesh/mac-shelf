@@ -8,7 +8,12 @@ struct QuickToolsPanel: View {
     let clipboardStore: ClipboardStore
     let notepadStore: NotepadStore
     @ObservedObject var panelState: PanelState
+    @ObservedObject var licenseState: LicenseState
     let onSelectClipboardItem: (ClipboardItem) -> Void
+    let onOpenSettings: () -> Void
+
+    @AppStorage("appearanceMode") private var appearanceMode = AppearanceMode.system
+    @AppStorage("textSize") private var textSize = TextSizeSetting.medium
 
     var body: some View {
         VStack(spacing: 8) {
@@ -26,14 +31,36 @@ struct QuickToolsPanel: View {
                 tab(0) { StatsView(stats: stats) }
                 tab(1) { CalendarView() }
                 tab(2) { CalculatorView() }
-                tab(3) { ClipboardListView(store: clipboardStore, onSelect: onSelectClipboardItem) }
-                tab(4) { NotepadView(store: notepadStore) }
+                tab(3) { clipboardTab }
+                tab(4) { notepadTab }
             }
             .modifier(SelectedTabChangeHandler(selectedTab: panelState.selectedTab, onChange: handleTabChange))
         }
         .padding(10)
         .frame(width: 280, height: 240)
         .background(PopoverVisualEffect())
+        .environment(\.textScale, textSize.scaleFactor)
+        .preferredColorScheme(appearanceMode.colorScheme)
+    }
+
+    /// Clipboard history is a Pro feature — see `DESIGN-SYSTEM.md` §License
+    /// and the task's free/Pro split. Free tier is Stats/Calendar/Calculator.
+    @ViewBuilder
+    private var clipboardTab: some View {
+        if licenseState.isProLicensed {
+            ClipboardListView(store: clipboardStore, onSelect: onSelectClipboardItem)
+        } else {
+            UnlockProView(feature: "Clipboard history", systemImage: "doc.on.clipboard", onUnlock: onOpenSettings)
+        }
+    }
+
+    @ViewBuilder
+    private var notepadTab: some View {
+        if licenseState.isProLicensed {
+            NotepadView(store: notepadStore)
+        } else {
+            UnlockProView(feature: "The Notepad", systemImage: "note.text", onUnlock: onOpenSettings)
+        }
     }
 
     private func handleTabChange(_ tab: Int) {

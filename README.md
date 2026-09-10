@@ -4,6 +4,11 @@ A single macOS menu-bar app combining live system monitoring, quick widgets,
 clipboard history with a global paste picker, and a scratch notepad. Swift/AppKit
 + SwiftUI, no third-party dependencies.
 
+Design refreshed to match the shared MacGroom-level design system used across
+the mac-apps line (semantic colors, a scalable `.appFont` typography helper,
+an Appearance/Text Size settings pane) — see
+`gogenops/apps/landing/mac-apps/DESIGN-SYSTEM.md`.
+
 Supersedes three predecessor apps (each left intact, still independently buildable):
 
 - [sysmonitor-menubar](https://github.com/soodrajesh/sysmonitor-menubar) — CPU/MEM readout, Free Up Memory
@@ -16,25 +21,64 @@ Supersedes three predecessor apps (each left intact, still independently buildab
 
 - Live two-line **CPU %** / **MEM %** readout; values turn **red** under load
 - **Left-click** → popover (five tabs, fixed size so switching tabs does not resize the panel)
-- **Right-click** → Free Up Memory, Enable Accessibility (if needed), Quit
+- **Right-click** → Free Up Memory, Enable Accessibility (if needed), Settings…, Quit
 - No Dock icon (`LSUIElement`); installs to `/Applications`, ad-hoc signed so Accessibility survives rebuilds
+- **Settings…** → Appearance (System/Light/Dark), Text Size (Small/Medium/Large/Extra Large), License, About
 
 ### Popover tabs
 
-| Tab | What it does |
-|-----|----------------|
-| **Stats** | CPU/memory detail, top CPU process, network and disk throughput, disk free/total, **Free Up Memory** |
-| **Calendar** | Month grid; Irish public holidays (computed) |
-| **Calculator** | Basic four-operation calculator |
-| **Clipboard** | Recent copies (image thumbnails); click to copy and auto-paste into the app you had focused |
-| **Notepad** | Scratch pad with debounced auto-save; **Copy** and **Clear** (with confirm) buttons |
+| Tab | What it does | Tier |
+|-----|----------------|------|
+| **Stats** | CPU/memory detail, top CPU process, network and disk throughput, disk free/total, **Free Up Memory** | Free |
+| **Calendar** | Month grid; Irish public holidays (computed) | Free |
+| **Calculator** | Basic four-operation calculator | Free |
+| **Clipboard** | Recent copies (image thumbnails); click to copy and auto-paste into the app you had focused | Pro |
+| **Notepad** | Scratch pad with debounced auto-save; **Copy** and **Clear** (with confirm) buttons | Pro |
+
+A gated tab shows an "Unlock Pro" prompt instead of silently disabling itself.
 
 ### Global hotkeys
 
-| Shortcut | Action |
-|----------|--------|
-| **⌘⇧V** | Floating searchable paste-picker (↑/↓, Return to paste) — works from any app |
-| **⌘⇧N** | Open the popover on the **Notepad** tab (or switch to it if the popover is already open) |
+| Shortcut | Action | Tier |
+|----------|--------|------|
+| **⌘⇧V** | Floating searchable paste-picker (↑/↓, Return to paste) — works from any app | Pro |
+| **⌘⇧N** | Open the popover on the **Notepad** tab (or switch to it if the popover is already open) | Pro |
+
+Both hotkeys stay registered when unlicensed; firing either one opens Settings'
+License tab instead of the picker/notepad.
+
+## MacTools Pro
+
+Stats, Calendar, and Calculator are free forever. **Clipboard history**, the
+**Notepad**, and the **⌘⇧V** / **⌘⇧N** global hotkeys are MacTools Pro
+features, unlocked with a license key entered in **Settings → License**
+(right-click the menu bar icon → Settings…).
+
+Licensing is per-app — this is a separate product/license from MacGroom's,
+verified against [Polar.sh](https://polar.sh)'s customer-portal License Keys
+API, the same backend MacGroom (mac-cleanup) uses, structurally ported from
+`mac-cleanup/Sources/MacGroomLicenseCheck.swift`:
+
+- License key stored under `@AppStorage`/`UserDefaults` key
+  `com.rajeshsood.mactools.licenseKey`; the verified license itself is
+  cached in the Keychain with an HMAC tag so a hand-forged cache entry is
+  rejected and forces a real network re-check.
+- `Sources/MacToolsLicenseCheck.swift` — the `LicenseChecker`/`License`
+  types and the Polar API call.
+- `Sources/LicenseState.swift` — the app-wide `ObservableObject` source of
+  truth for `isProLicensed`, shared by the popover and the Settings window.
+- `Sources/LicenseManagementView.swift` — the license entry/status UI.
+- `Sources/UnlockProView.swift` — the in-tab upsell shown when a gated
+  feature isn't licensed.
+
+**Not yet live** — `PolarConfig.organizationId` in
+`MacToolsLicenseCheck.swift` is a placeholder (`TODO_POLAR_ORGANIZATION_ID`)
+until the MacTools Pro product exists in Polar. Until then, every license
+check 404s and the app fails closed to the free tier — it does not crash.
+See that file's doc comment for the exact TODO checklist (create the
+product + license-key benefit in Polar, fill in the org ID or set
+`MACTOOLS_POLAR_ORG_ID`, set a real checkout URL, rotate the Keychain-cache
+HMAC key from its placeholder).
 
 ### Notepad editing
 

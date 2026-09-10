@@ -10,7 +10,7 @@ struct NotepadView: View {
         VStack(alignment: .leading, spacing: 4) {
             NotepadTextView(text: $store.text, focusOnAppear: focusEditor)
                 .padding(6)
-                .background(Color(nsColor: .quaternaryLabelColor))
+                .background(Color(.controlBackgroundColor))
                 .cornerRadius(6)
                 .overlay(
                     RoundedRectangle(cornerRadius: 6)
@@ -19,7 +19,7 @@ struct NotepadView: View {
 
             HStack(spacing: 8) {
                 Text(copiedFlash ? "Copied" : "Saved automatically")
-                    .font(.system(size: 9))
+                    .appFont(.caption2)
                     .foregroundStyle(.secondary)
 
                 Spacer()
@@ -31,7 +31,7 @@ struct NotepadView: View {
                         copiedFlash = false
                     }
                 }
-                .font(.system(size: 10, weight: .medium))
+                .appFont(.caption, weight: .medium)
                 .buttonStyle(.plain)
                 .foregroundStyle(.primary)
 
@@ -41,7 +41,7 @@ struct NotepadView: View {
                     }
                     confirmClear = true
                 }
-                .font(.system(size: 10, weight: .medium))
+                .appFont(.caption, weight: .medium)
                 .buttonStyle(.plain)
                 .foregroundStyle(store.text.isEmpty ? Color.secondary : Color.red)
                 .disabled(store.text.isEmpty)

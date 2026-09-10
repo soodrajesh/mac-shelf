@@ -11,7 +11,7 @@ struct CalendarView: View {
             HStack {
                 Button(action: previousMonth) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 10, weight: .semibold))
+                        .appFont(.caption2, weight: .semibold)
                         .frame(width: 16, height: 16)
                         .foregroundStyle(.primary)
                 }
@@ -23,7 +23,7 @@ struct CalendarView: View {
                 // only way back once you've navigated away with the chevrons.
                 Button(action: jumpToToday) {
                     Text(monthYearFormatter.string(from: displayedMonth))
-                        .font(.system(size: 12, weight: .semibold))
+                        .appFont(.callout, weight: .semibold)
                         .foregroundStyle(.primary)
                 }
                 .buttonStyle(.plain)
@@ -33,7 +33,7 @@ struct CalendarView: View {
 
                 Button(action: nextMonth) {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .semibold))
+                        .appFont(.caption2, weight: .semibold)
                         .frame(width: 16, height: 16)
                         .foregroundStyle(.primary)
                 }
@@ -45,7 +45,7 @@ struct CalendarView: View {
             HStack(spacing: 0) {
                 ForEach(["S", "M", "T", "W", "T", "F", "S"], id: \.self) { day in
                     Text(day)
-                        .font(.system(size: 9, weight: .semibold))
+                        .appFont(.caption2, weight: .semibold)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                 }
@@ -68,15 +68,15 @@ struct CalendarView: View {
         if let date = date {
             let day = calendar.component(.day, from: date)
             Text("\(day)")
-                .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(isCurrentMonth(date) ? Color.primary : Color.secondary.opacity(0.6))
+                .appFont(.caption2, weight: .semibold)
+                .foregroundStyle(isCurrentMonth(date) ? (isToday(date) ? Color.white : Color.primary) : Color.secondary.opacity(0.6))
                 .frame(width: 22, height: 22)
-                .background(isToday(date) ? Color(red: 0.5, green: 0.65, blue: 0.8) : Color.clear)
+                .background(isToday(date) ? Color.accentColor : Color.clear)
                 .cornerRadius(5)
                 .overlay(alignment: .topTrailing) {
                     if isCurrentMonth(date) && IrishHolidays.isHoliday(date) {
                         Circle()
-                            .fill(Color(red: 1.0, green: 0.7, blue: 0.15))
+                            .fill(Color.orange)
                             .frame(width: 4, height: 4)
                             .offset(x: 2, y: -1)
                     }

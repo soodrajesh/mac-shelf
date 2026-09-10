@@ -24,10 +24,10 @@ struct StatsView: View {
 
             Button(action: stats.freeMemory) {
                 Text(stats.freeMemStatus)
-                    .font(.system(size: 12, weight: .medium))
+                    .appFont(.callout, weight: .medium)
                     .frame(maxWidth: .infinity)
                     .frame(height: 26)
-                    .background(Color(nsColor: .quaternaryLabelColor))
+                    .background(Color(.controlBackgroundColor))
                     .foregroundStyle(.primary)
                     .cornerRadius(5)
             }
@@ -40,11 +40,11 @@ struct StatsView: View {
     private func statRow(icon: String, label: String, value: String, high: Bool) -> some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .appFont(.callout)
                 .foregroundColor(secondaryColor)
                 .frame(width: 14)
             Text(label)
-                .font(.system(size: 13, weight: .semibold))
+                .appFont(.body, weight: .semibold)
                 .foregroundStyle(.primary)
             Spacer()
             Text(value)
@@ -58,11 +58,11 @@ struct StatsView: View {
     private func detailRow(icon: String, text: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.system(size: 10))
+                .appFont(.caption)
                 .foregroundColor(secondaryColor)
                 .frame(width: 14)
             Text(text)
-                .font(.system(size: 10))
+                .appFont(.caption)
                 .foregroundColor(secondaryColor)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -74,24 +74,24 @@ struct StatsView: View {
     private func categoryRow(category: String, down: String, up: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: category)
-                .font(.system(size: 11))
+                .appFont(.subheadline)
                 .foregroundColor(secondaryColor)
                 .frame(width: 14)
 
             HStack(spacing: 4) {
                 Image(systemName: "arrow.down")
-                    .font(.system(size: 9, weight: .bold))
+                    .appFont(.caption2, weight: .bold)
                     .foregroundColor(secondaryColor)
                 Text(down)
-                    .font(.system(size: 11, weight: .medium))
+                    .appFont(.subheadline, weight: .medium)
                     .foregroundStyle(.primary)
             }
             HStack(spacing: 4) {
                 Image(systemName: "arrow.up")
-                    .font(.system(size: 9, weight: .bold))
+                    .appFont(.caption2, weight: .bold)
                     .foregroundColor(secondaryColor)
                 Text(up)
-                    .font(.system(size: 11, weight: .medium))
+                    .appFont(.subheadline, weight: .medium)
                     .foregroundStyle(.primary)
             }
             Spacer()

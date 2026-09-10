@@ -9,7 +9,7 @@ struct ClipboardListView: View {
             if store.items.isEmpty {
                 Spacer()
                 Text("No clipboard history yet")
-                    .font(.system(size: 11))
+                    .appFont(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .center)
                 Spacer()
@@ -21,7 +21,7 @@ struct ClipboardListView: View {
                                 rowContent(for: item)
                                     .padding(.horizontal, 6)
                                     .frame(height: 22)
-                                    .background(Color(nsColor: .quaternaryLabelColor))
+                                    .background(Color(.controlBackgroundColor))
                                     .cornerRadius(4)
                             }
                             .buttonStyle(.plain)
@@ -43,7 +43,7 @@ struct ClipboardListView: View {
             switch item.kind {
             case .text:
                 Text(rowTitle(for: item))
-                    .font(.system(size: 11))
+                    .appFont(.subheadline)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
             case .image:
@@ -54,14 +54,14 @@ struct ClipboardListView: View {
                         .frame(width: 18, height: 18)
                         .cornerRadius(2)
                     Text("\(Int(nsImage.size.width))×\(Int(nsImage.size.height))")
-                        .font(.system(size: 11))
+                        .appFont(.subheadline)
                         .foregroundStyle(.primary)
                 } else {
                     Image(systemName: "photo")
-                        .font(.system(size: 11))
+                        .appFont(.subheadline)
                         .foregroundStyle(.primary)
                     Text("Image")
-                        .font(.system(size: 11))
+                        .appFont(.subheadline)
                         .foregroundStyle(.primary)
                 }
             }

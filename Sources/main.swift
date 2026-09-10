@@ -20,6 +20,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let clipboardStore = ClipboardStore()
     private let notepadStore = NotepadStore()
     private let panelState = PanelState()
+    private let licenseState = LicenseState()
+    private var settingsWindowController: SettingsWindowController!
     private var clipboardMonitor: ClipboardMonitor!
     private var picker: PickerController!
     private var hotKey: HotKey?
@@ -28,6 +30,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         ApplicationMenus.installStandardEditMenu()
+
+        settingsWindowController = SettingsWindowController(licenseState: licenseState)
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.isVisible = true
@@ -48,7 +52,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             clipboardStore: clipboardStore,
             notepadStore: notepadStore,
             panelState: panelState,
-            onSelectClipboardItem: { [weak self] item in self?.selectClipboardItem(item) }
+            licenseState: licenseState,
+            onSelectClipboardItem: { [weak self] item in self?.selectClipboardItem(item) },
+            onOpenSettings: { [weak self] in self?.openSettings() }
         ))
         hosting.view.wantsLayer = true
         hosting.view.layer?.backgroundColor = NSColor.clear.cgColor
@@ -59,13 +65,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         picker = PickerController(store: clipboardStore)
 
         // kVK_ANSI_V = 9; cmdKey|shiftKey are Carbon modifier masks for ⌘⇧.
+        // Both hotkeys are Pro features (see DESIGN-SYSTEM.md's license
+        // pattern / the free-vs-Pro split): registered unconditionally so
+        // the shortcut doesn't collide with anything else system-wide, but
+        // the action itself checks `licenseState.isProLicensed` at fire
+        // time and opens Settings' License tab instead when unlicensed.
         hotKey = HotKey(keyCode: 9, modifiers: UInt32(cmdKey | shiftKey)) { [weak self] in
-            self?.picker.show()
+            self?.handlePastePickerHotkey()
         }
 
         // kVK_ANSI_N = 45 — open popover on Notepad tab.
         notepadHotKey = HotKey(keyCode: 45, modifiers: UInt32(cmdKey | shiftKey)) { [weak self] in
-            self?.showNotepadFromHotkey()
+            self?.handleNotepadHotkey()
         }
 
         if !PasteSimulator.isTrusted {
@@ -77,6 +88,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
             self?.refreshStatsAndMenuBar()
         }
+
+        Task { await licenseState.refresh() }
+    }
+
+    private func handlePastePickerHotkey() {
+        guard licenseState.isProLicensed else {
+            openSettings()
+            return
+        }
+        picker.show()
+    }
+
+    private func handleNotepadHotkey() {
+        guard licenseState.isProLicensed else {
+            openSettings()
+            return
+        }
+        showNotepadFromHotkey()
+    }
+
+    private func openSettings() {
+        closePopover()
+        settingsWindowController.show()
     }
 
     private func refreshStatsAndMenuBar() {
@@ -180,6 +214,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             menu.addItem(permItem)
         }
 
+        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettingsAction), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
+
         menu.addItem(.separator())
         let quitItem = NSMenuItem(title: "Quit MacTools", action: #selector(quit), keyEquivalent: "")
         quitItem.target = self
@@ -196,6 +234,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func requestAccessibility() {
         PasteSimulator.requestAccessibility()
+    }
+
+    @objc func openSettingsAction() {
+        openSettings()
     }
 
     @objc func quit() {

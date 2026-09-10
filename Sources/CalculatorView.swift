@@ -18,7 +18,7 @@ struct CalculatorView: View {
     var body: some View {
         VStack(spacing: 5) {
             Text(display)
-                .font(.system(size: 16, weight: .light, design: .default))
+                .appFont(.title2, weight: .light)
                 .foregroundColor(.primary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
@@ -33,7 +33,7 @@ struct CalculatorView: View {
                         } else {
                             Button(action: { handleTap(btn) }) {
                                 Text(btn)
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .appFont(.callout, weight: .semibold)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 26)
                                     .background(buttonColor(btn))
@@ -56,7 +56,7 @@ struct CalculatorView: View {
         if ["C", "±", "%"].contains(btn) {
             return Color(.systemGray)
         }
-        return Color(nsColor: .quaternaryLabelColor)
+        return Color(.controlBackgroundColor)
     }
 
     func handleTap(_ btn: String) {
