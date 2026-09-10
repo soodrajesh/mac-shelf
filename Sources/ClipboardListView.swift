@@ -4,6 +4,8 @@ struct ClipboardListView: View {
     @ObservedObject var store: ClipboardStore
     let onSelect: (ClipboardItem) -> Void
 
+    @State private var confirmClearAll = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             if store.items.isEmpty {
@@ -17,20 +19,51 @@ struct ClipboardListView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 2) {
                         ForEach(store.items.prefix(12), id: \.id) { item in
-                            Button(action: { onSelect(item) }) {
-                                rowContent(for: item)
-                                    .padding(.horizontal, 6)
-                                    .frame(height: 22)
-                                    .background(Color(.controlBackgroundColor))
-                                    .cornerRadius(4)
+                            HStack(spacing: 4) {
+                                Button(action: { onSelect(item) }) {
+                                    rowContent(for: item)
+                                        .padding(.horizontal, 6)
+                                        .frame(height: 22)
+                                        .background(Color(.controlBackgroundColor))
+                                        .cornerRadius(4)
+                                }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button("Delete", role: .destructive) {
+                                        store.remove(item)
+                                    }
+                                }
+
+                                Button(action: { store.remove(item) }) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .appFont(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                                .help("Delete this item")
+                                .accessibilityLabel("Delete clipboard item")
                             }
-                            .buttonStyle(.plain)
                         }
                     }
+                }
+
+                HStack {
+                    Spacer()
+                    Button("Clear All") { confirmClearAll = true }
+                        .appFont(.caption2, weight: .medium)
+                        .buttonStyle(.plain)
+                        .foregroundStyle(Color.red)
+                        .help("Delete all clipboard history")
                 }
             }
         }
         .frame(width: 260, height: 190, alignment: .top)
+        .confirmationDialog("Clear all clipboard history?", isPresented: $confirmClearAll, titleVisibility: .visible) {
+            Button("Clear All", role: .destructive) {
+                store.clear()
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 
     /// Text rows show the preview string; image rows show the actual
@@ -46,6 +79,7 @@ struct ClipboardListView: View {
                     .appFont(.subheadline)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
+                    .accessibilityLabel(rowTitle(for: item))
             case .image:
                 if let f = item.imageFile, let nsImage = NSImage(contentsOf: store.imageURL(for: f)) {
                     Image(nsImage: nsImage)
@@ -53,9 +87,11 @@ struct ClipboardListView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 18, height: 18)
                         .cornerRadius(2)
+                        .accessibilityHidden(true)
                     Text("\(Int(nsImage.size.width))×\(Int(nsImage.size.height))")
                         .appFont(.subheadline)
                         .foregroundStyle(.primary)
+                        .accessibilityLabel("Copied image, \(Int(nsImage.size.width)) by \(Int(nsImage.size.height)) pixels")
                 } else {
                     Image(systemName: "photo")
                         .appFont(.subheadline)
@@ -63,6 +99,7 @@ struct ClipboardListView: View {
                     Text("Image")
                         .appFont(.subheadline)
                         .foregroundStyle(.primary)
+                        .accessibilityLabel("Copied image")
                 }
             }
             Spacer()

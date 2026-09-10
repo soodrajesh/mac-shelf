@@ -4,6 +4,10 @@ import SwiftUI
 /// AppKit text view so ⌘V and keyboard input work in the menu-bar popover
 /// (SwiftUI `TextEditor` often does not become key in `LSUIElement` apps).
 struct NotepadTextView: NSViewRepresentable {
+    /// Base point size at `textScale == 1.0` — matches the Support.swift
+    /// `.body`-adjacent sizing used elsewhere in the popover.
+    private static let basePointSize: CGFloat = 11
+
     @Binding var text: String
     var focusOnAppear: Bool
 
@@ -21,7 +25,7 @@ struct NotepadTextView: NSViewRepresentable {
         textView.isRichText = false
         textView.importsGraphics = false
         textView.allowsUndo = true
-        textView.font = NSFont.systemFont(ofSize: 11)
+        textView.font = NSFont.systemFont(ofSize: Self.basePointSize * context.environment.textScale)
         textView.textColor = .labelColor
         textView.backgroundColor = .clear
         textView.isVerticallyResizable = true
@@ -40,6 +44,10 @@ struct NotepadTextView: NSViewRepresentable {
         guard let textView = scrollView.documentView as? NSTextView else { return }
         if textView.string != text {
             textView.string = text
+        }
+        let scaledSize = Self.basePointSize * context.environment.textScale
+        if textView.font?.pointSize != scaledSize {
+            textView.font = NSFont.systemFont(ofSize: scaledSize)
         }
         if focusOnAppear {
             context.coordinator.focusEditorIfNeeded()

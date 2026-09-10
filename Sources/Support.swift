@@ -30,6 +30,10 @@ extension EnvironmentValues {
 enum AppFontStyle {
     case largeTitle, title, title2, title3
     case headline, body, callout, subheadline, footnote, caption, caption2
+    /// Stats tab's CPU/MEM value readout — the single largest, most-glanced-
+    /// at text in the app. Previously a raw `.font(.system(size: 16…))`
+    /// that ignored the Text Size setting entirely (UX-AUDIT.md finding A-1).
+    case statValue
 
     var basePointSize: CGFloat {
         switch self {
@@ -44,13 +48,17 @@ enum AppFontStyle {
         case .footnote:    return 10
         case .caption:     return 10
         case .caption2:    return 10
+        case .statValue:   return 16
         }
     }
 
     /// SwiftUI's real `.headline` renders semibold, not regular — every
     /// other style here defaults to regular unless a caller overrides it.
     var defaultWeight: Font.Weight {
-        self == .headline ? .semibold : .regular
+        switch self {
+        case .headline, .statValue: return .semibold
+        default: return .regular
+        }
     }
 }
 
@@ -58,9 +66,10 @@ private struct ScaledFontModifier: ViewModifier {
     @Environment(\.textScale) private var scale
     let style: AppFontStyle
     let weight: Font.Weight?
+    let design: Font.Design
 
     func body(content: Content) -> some View {
-        content.font(.system(size: style.basePointSize * scale, weight: weight ?? style.defaultWeight))
+        content.font(.system(size: style.basePointSize * scale, weight: weight ?? style.defaultWeight, design: design))
     }
 }
 
@@ -70,8 +79,10 @@ extension View {
     /// needs this instead for Settings' Text Size to have any real effect.
     /// `weight` is `nil` by default (not `.regular`) so styles with their
     /// own natural weight — just `.headline`, semibold — keep it unless a
-    /// caller explicitly overrides.
-    func appFont(_ style: AppFontStyle, weight: Font.Weight? = nil) -> some View {
-        modifier(ScaledFontModifier(style: style, weight: weight))
+    /// caller explicitly overrides. `design` defaults to `.default` and only
+    /// needs overriding for the rare rounded-digit readout (Stats' CPU/MEM
+    /// values).
+    func appFont(_ style: AppFontStyle, weight: Font.Weight? = nil, design: Font.Design = .default) -> some View {
+        modifier(ScaledFontModifier(style: style, weight: weight, design: design))
     }
 }

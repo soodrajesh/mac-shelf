@@ -26,6 +26,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var picker: PickerController!
     private var hotKey: HotKey?
     private var notepadHotKey: HotKey?
+    /// Populated when `HotKey.init?` returns `nil` (registration failed,
+    /// e.g. another app already claims that key combo) — surfaced in the
+    /// right-click menu so the failure is visible instead of silent
+    /// (UX-AUDIT.md finding F-1). Full remapping UI is out of scope; this is
+    /// the minimum "make failure visible" fix.
+    private var hotKeyWarnings: [String] = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -73,10 +79,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         hotKey = HotKey(keyCode: 9, modifiers: UInt32(cmdKey | shiftKey)) { [weak self] in
             self?.handlePastePickerHotkey()
         }
+        if hotKey == nil {
+            let message = "Global shortcut ⌘⇧V could not be registered — it may be in use by another app."
+            NSLog("MacTools: \(message)")
+            hotKeyWarnings.append(message)
+        }
 
         // kVK_ANSI_N = 45 — open popover on Notepad tab.
         notepadHotKey = HotKey(keyCode: 45, modifiers: UInt32(cmdKey | shiftKey)) { [weak self] in
             self?.handleNotepadHotkey()
+        }
+        if notepadHotKey == nil {
+            let message = "Global shortcut ⌘⇧N could not be registered — it may be in use by another app."
+            NSLog("MacTools: \(message)")
+            hotKeyWarnings.append(message)
         }
 
         if !PasteSimulator.isTrusted {
@@ -212,6 +228,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                        action: #selector(requestAccessibility), keyEquivalent: "")
             permItem.target = self
             menu.addItem(permItem)
+        }
+
+        if !hotKeyWarnings.isEmpty {
+            menu.addItem(.separator())
+            for warning in hotKeyWarnings {
+                let warningItem = NSMenuItem(title: "⚠️ \(warning)", action: nil, keyEquivalent: "")
+                warningItem.isEnabled = false
+                menu.addItem(warningItem)
+            }
         }
 
         let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettingsAction), keyEquivalent: ",")

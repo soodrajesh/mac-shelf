@@ -16,6 +16,8 @@ struct CalendarView: View {
                         .foregroundStyle(.primary)
                 }
                 .buttonStyle(.plain)
+                .help("Previous month")
+                .accessibilityLabel("Previous month")
 
                 Spacer()
 
@@ -38,6 +40,8 @@ struct CalendarView: View {
                         .foregroundStyle(.primary)
                 }
                 .buttonStyle(.plain)
+                .help("Next month")
+                .accessibilityLabel("Next month")
             }
             .frame(height: 20)
 

@@ -106,7 +106,7 @@ struct LicenseEntrySheet: View {
                     .foregroundStyle(.secondary)
 
                 TextEditor(text: $licenseKey)
-                    .font(.system(.body, design: .monospaced))
+                    .appFont(.body, design: .monospaced)
                     .frame(height: 100)
                     .padding(8)
                     .background(Color(.controlBackgroundColor))

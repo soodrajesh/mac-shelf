@@ -41,12 +41,31 @@ struct CalculatorView: View {
                                     .cornerRadius(4)
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(accessibilityLabel(for: btn))
                         }
                     }
                 }
             }
         }
         .frame(width: 260, height: 190)
+    }
+
+    /// Digits already read fine via `Text`; the symbol keys ("±", "÷", "−",
+    /// "×", "%", "=", "C") read poorly/ambiguously on VoiceOver without an
+    /// explicit label (UX-AUDIT.md finding A-3).
+    func accessibilityLabel(for btn: String) -> String {
+        switch btn {
+        case "C": return "Clear"
+        case "±": return "Toggle sign"
+        case "%": return "Percent"
+        case "÷": return "Divide"
+        case "×": return "Multiply"
+        case "−": return "Subtract"
+        case "+": return "Add"
+        case "=": return "Equals"
+        case ".": return "Decimal point"
+        default: return btn
+        }
     }
 
     func buttonColor(_ btn: String) -> Color {
@@ -121,7 +140,10 @@ struct CalculatorView: View {
         case "×":
             result = pendingValue * currentValue
         case "÷":
-            result = currentValue != 0 ? pendingValue / currentValue : 0
+            // Let `formatResult`'s existing NaN/infinite check produce
+            // "Error" instead of a `0` indistinguishable from a genuine
+            // zero result (UX-AUDIT.md finding F-4).
+            result = pendingValue / currentValue
         default:
             break
         }

@@ -35,6 +35,16 @@ enum PolarConfig {
         ProcessInfo.processInfo.environment["MACTOOLS_POLAR_ORG_ID"] ?? placeholderOrganizationId
     }
 
+    /// `false` until `MACTOOLS_POLAR_ORG_ID` is set or the placeholder above
+    /// is replaced with a real Polar Organization ID. `LicenseChecker.verify`
+    /// checks this *before* calling Polar, so a not-yet-configured backend
+    /// fails with a distinct "not available yet" message instead of ever
+    /// reaching the API and coming back as a false "invalid key" (see
+    /// UX-AUDIT.md finding P-1).
+    static var isConfigured: Bool {
+        organizationId != placeholderOrganizationId
+    }
+
     /// TODO(polar-setup): once the product exists, fill in its real
     /// checkout link (Polar → Products → MacTools Pro → Share → copy
     /// checkout link) so `LicenseManagementView`'s "Buy MacTools Pro" button
@@ -214,9 +224,12 @@ public enum LicenseCheckError: LocalizedError {
     case codingError(Error)
     case unknown(String)
     case wrongProduct
+    case notConfigured
 
     public var errorDescription: String? {
         switch self {
+        case .notConfigured:
+            return "MacTools Pro isn't available for purchase yet — check back soon."
         case .invalidLicenseKey:
             return "The license key is invalid or not recognized."
         case .networkError(let error):
@@ -292,6 +305,10 @@ public class LicenseChecker {
         useCache: Bool = true,
         cacheDuration: TimeInterval = 7 * 24 * 3600
     ) async throws -> License {
+        guard PolarConfig.isConfigured else {
+            throw LicenseCheckError.notConfigured
+        }
+
         let trimmedKey = licenseKey.trimmingCharacters(in: .whitespaces)
 
         return try await VerifyLock.shared.run(key: trimmedKey) { [self] in

@@ -47,9 +47,16 @@ struct StatsView: View {
                 .appFont(.body, weight: .semibold)
                 .foregroundStyle(.primary)
             Spacer()
+            if high {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .appFont(.caption2)
+                    .foregroundStyle(Color.red)
+                    .accessibilityHidden(true)
+            }
             Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .appFont(.statValue, weight: .bold, design: .rounded)
                 .foregroundStyle(high ? Color.red : Color.primary)
+                .accessibilityLabel("\(label) \(value)\(high ? ", high" : "")")
         }
     }
 

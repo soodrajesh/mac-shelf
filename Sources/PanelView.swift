@@ -19,13 +19,19 @@ struct QuickToolsPanel: View {
         VStack(spacing: 8) {
             Picker("", selection: $panelState.selectedTab) {
                 Image(systemName: "cpu").tag(0)
+                    .accessibilityLabel("Stats")
                 Image(systemName: "calendar").tag(1)
+                    .accessibilityLabel("Calendar")
                 Image(systemName: "plus.slash.minus").tag(2)
+                    .accessibilityLabel("Calculator")
                 Image(systemName: "doc.on.clipboard").tag(3)
+                    .accessibilityLabel("Clipboard")
                 Image(systemName: "note.text").tag(4)
+                    .accessibilityLabel("Notepad")
             }
             .pickerStyle(.segmented)
             .labelsHidden()
+            .help("Switch tool")
 
             ZStack {
                 tab(0) { StatsView(stats: stats) }

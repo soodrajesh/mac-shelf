@@ -56,17 +56,20 @@ final class PickerRowView: NSTableCellView {
     func configure(with item: ClipboardItem, store: ClipboardStore) {
         switch item.kind {
         case .text:
-            iconView.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: nil)
+            iconView.image = NSImage(systemSymbolName: "doc.text", accessibilityDescription: "Copied text")
             label.stringValue = item.preview.replacingOccurrences(of: "\n", with: "  ⏎  ")
             label.alignment = .left
             setStacked(false)
+            setAccessibilityLabel(label.stringValue)
         case .image:
             if let f = item.imageFile, let img = NSImage(contentsOf: store.imageURL(for: f)) {
                 iconView.image = img
                 label.stringValue = "\(Int(img.size.width))×\(Int(img.size.height))"
+                setAccessibilityLabel("Copied image, \(label.stringValue) pixels")
             } else {
-                iconView.image = NSImage(systemSymbolName: "photo", accessibilityDescription: nil)
+                iconView.image = NSImage(systemSymbolName: "photo", accessibilityDescription: "Copied image")
                 label.stringValue = "Image"
+                setAccessibilityLabel("Copied image")
             }
             label.alignment = .center
             setStacked(true)
