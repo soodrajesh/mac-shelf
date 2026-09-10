@@ -77,8 +77,9 @@ final class PickerController: NSObject, NSTextFieldDelegate, NSTableViewDataSour
 
         content.addSubview(searchField)
         content.addSubview(scrollView)
+        let topAnchor = (panel.contentLayoutGuide as? NSLayoutGuide)?.topAnchor ?? content.topAnchor
         NSLayoutConstraint.activate([
-            searchField.topAnchor.constraint(equalTo: (panel.contentLayoutGuide as! NSLayoutGuide).topAnchor, constant: 14),
+            searchField.topAnchor.constraint(equalTo: topAnchor, constant: 14),
             searchField.leadingAnchor.constraint(equalTo: content.leadingAnchor, constant: 12),
             searchField.trailingAnchor.constraint(equalTo: content.trailingAnchor, constant: -12),
 

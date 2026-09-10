@@ -29,15 +29,17 @@ struct QuickToolsPanel: View {
                 tab(3) { ClipboardListView(store: clipboardStore, onSelect: onSelectClipboardItem) }
                 tab(4) { NotepadView(store: notepadStore) }
             }
-            .onChange(of: panelState.selectedTab) { tab in
-                if tab == 0 {
-                    stats.refresh(includeDetails: true)
-                }
-            }
+            .modifier(SelectedTabChangeHandler(selectedTab: panelState.selectedTab, onChange: handleTabChange))
         }
         .padding(10)
         .frame(width: 280, height: 240)
         .background(PopoverVisualEffect())
+    }
+
+    private func handleTabChange(_ tab: Int) {
+        if tab == 0 {
+            stats.refresh(includeDetails: true)
+        }
     }
 
     @ViewBuilder
@@ -48,5 +50,21 @@ struct QuickToolsPanel: View {
             .opacity(visible ? 1 : 0)
             .allowsHitTesting(visible)
             .accessibilityHidden(!visible)
+    }
+}
+
+/// Deployment target is macOS 13, but the two-parameter `onChange(of:)` is
+/// 14.0+. Branch on availability so 14+ gets the non-deprecated API while
+/// 13 still builds and runs against the old one.
+private struct SelectedTabChangeHandler: ViewModifier {
+    let selectedTab: Int
+    let onChange: (Int) -> Void
+
+    func body(content: Content) -> some View {
+        if #available(macOS 14.0, *) {
+            content.onChange(of: selectedTab) { _, newValue in onChange(newValue) }
+        } else {
+            content.onChange(of: selectedTab) { newValue in onChange(newValue) }
+        }
     }
 }
