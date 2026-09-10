@@ -10,10 +10,9 @@ struct NotepadView: View {
         VStack(alignment: .leading, spacing: 4) {
             NotepadTextView(text: $store.text, focusOnAppear: focusEditor)
                 .padding(6)
-                .background(Color(.controlBackgroundColor))
-                .cornerRadius(6)
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 6)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .strokeBorder(Color(nsColor: .separatorColor), lineWidth: 0.5)
                 )
 
@@ -31,9 +30,10 @@ struct NotepadView: View {
                         copiedFlash = false
                     }
                 }
-                .appFont(.caption, weight: .medium)
+                .appFont(.caption, weight: .semibold)
                 .buttonStyle(.plain)
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color.appAccent)
+                .animation(.spring(response: 0.3, dampingFraction: 0.8), value: copiedFlash)
 
                 Button("Clear") {
                     if store.text.isEmpty {
@@ -47,7 +47,8 @@ struct NotepadView: View {
                 .disabled(store.text.isEmpty)
             }
         }
-        .frame(width: 260, height: 190, alignment: .top)
+        .padding(4)
+        .frame(width: 280, height: 220, alignment: .top)
         .onAppear {
             focusEditor = true
         }

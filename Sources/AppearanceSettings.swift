@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// System/Light/Dark, independent of the Mac's own appearance setting —
@@ -30,6 +31,20 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
         case .system: return nil
         case .light:  return .light
         case .dark:   return .dark
+        }
+    }
+
+    /// `.preferredColorScheme` only repaints the SwiftUI content — the
+    /// popover's own `NSVisualEffectView` chrome (`PopoverVisualEffect`)
+    /// otherwise keeps following the *system* appearance regardless of this
+    /// setting, so choosing "Light" while macOS is in Dark Mode left the
+    /// vibrancy background dark (light-mode audit finding). Feeding this
+    /// through to the view's own `NSAppearance` fixes that.
+    var nsAppearanceName: NSAppearance.Name? {
+        switch self {
+        case .system: return nil
+        case .light:  return .aqua
+        case .dark:   return .darkAqua
         }
     }
 }

@@ -23,9 +23,8 @@ struct ClipboardListView: View {
                                 Button(action: { onSelect(item) }) {
                                     rowContent(for: item)
                                         .padding(.horizontal, 6)
-                                        .frame(height: 22)
-                                        .background(Color(.controlBackgroundColor))
-                                        .cornerRadius(4)
+                                        .frame(height: 24)
+                                        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 6, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
                                 .contextMenu {
@@ -57,7 +56,9 @@ struct ClipboardListView: View {
                 }
             }
         }
-        .frame(width: 260, height: 190, alignment: .top)
+        .cardStyle(cornerRadius: 12, padding: 8)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: store.items.count)
+        .frame(width: 280, height: 220, alignment: .top)
         .confirmationDialog("Clear all clipboard history?", isPresented: $confirmClearAll, titleVisibility: .visible) {
             Button("Clear All", role: .destructive) {
                 store.clear()

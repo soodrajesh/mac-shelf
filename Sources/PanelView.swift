@@ -31,6 +31,7 @@ struct QuickToolsPanel: View {
             }
             .pickerStyle(.segmented)
             .labelsHidden()
+            .tint(Color.appAccent)
             .help("Switch tool")
 
             ZStack {
@@ -40,11 +41,12 @@ struct QuickToolsPanel: View {
                 tab(3) { clipboardTab }
                 tab(4) { notepadTab }
             }
+            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: panelState.selectedTab)
             .modifier(SelectedTabChangeHandler(selectedTab: panelState.selectedTab, onChange: handleTabChange))
         }
         .padding(10)
-        .frame(width: 280, height: 240)
-        .background(PopoverVisualEffect())
+        .frame(width: 300, height: 280)
+        .background(PopoverVisualEffect(appearanceOverride: appearanceMode.nsAppearanceName))
         .environment(\.textScale, textSize.scaleFactor)
         .preferredColorScheme(appearanceMode.colorScheme)
     }
@@ -79,7 +81,7 @@ struct QuickToolsPanel: View {
     private func tab(_ index: Int, @ViewBuilder content: () -> some View) -> some View {
         let visible = panelState.selectedTab == index
         content()
-            .frame(width: 260, height: 190)
+            .frame(width: 280, height: 220)
             .opacity(visible ? 1 : 0)
             .allowsHitTesting(visible)
             .accessibilityHidden(!visible)

@@ -6,43 +6,43 @@ struct StatsView: View {
     private var secondaryColor: Color { .secondary }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            statRow(icon: "cpu", label: "CPU", value: stats.cpuText, high: stats.cpuHigh)
-            statRow(icon: "memorychip", label: "Memory", value: stats.memText, high: stats.memHigh)
+        VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 4) {
+                statRow(icon: "cpu", label: "CPU", value: stats.cpuText, high: stats.cpuHigh)
+                statRow(icon: "memorychip", label: "Memory", value: stats.memText, high: stats.memHigh)
 
-            detailRow(icon: "gauge", text: stats.memDetail)
-            detailRow(icon: "flame", text: stats.topProcessText)
+                detailRow(icon: "gauge", text: stats.memDetail)
+                detailRow(icon: "flame", text: stats.topProcessText)
+            }
+            .cardStyle(cornerRadius: 10, padding: 6)
 
-            Divider()
-
-            categoryRow(category: "wifi", down: stats.netDownText, up: stats.netUpText)
-            categoryRow(category: "internaldrive", down: stats.diskReadText, up: stats.diskWriteText)
-
-            detailRow(icon: "chart.pie", text: stats.diskCapacityText)
+            VStack(alignment: .leading, spacing: 4) {
+                categoryRow(category: "wifi", down: stats.netDownText, up: stats.netUpText)
+                categoryRow(category: "internaldrive", down: stats.diskReadText, up: stats.diskWriteText)
+                detailRow(icon: "chart.pie", text: stats.diskCapacityText)
+            }
+            .cardStyle(cornerRadius: 10, padding: 6)
 
             Spacer(minLength: 0)
 
             Button(action: stats.freeMemory) {
                 Text(stats.freeMemStatus)
-                    .appFont(.callout, weight: .medium)
+                    .appFont(.callout, weight: .semibold)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 26)
-                    .background(Color(.controlBackgroundColor))
-                    .foregroundStyle(.primary)
-                    .cornerRadius(5)
+                    .frame(height: 22)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderedProminent)
+            .tint(Color.appAccent)
             .disabled(stats.freeMemInProgress)
         }
-        .frame(width: 260, height: 190, alignment: .top)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: stats.cpuHigh)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: stats.memHigh)
+        .frame(width: 280, height: 220, alignment: .top)
     }
 
     private func statRow(icon: String, label: String, value: String, high: Bool) -> some View {
         HStack(spacing: 8) {
-            Image(systemName: icon)
-                .appFont(.callout)
-                .foregroundColor(secondaryColor)
-                .frame(width: 14)
+            IconTile(systemName: icon, tileSize: 16)
             Text(label)
                 .appFont(.body, weight: .semibold)
                 .foregroundStyle(.primary)
@@ -55,7 +55,7 @@ struct StatsView: View {
             }
             Text(value)
                 .appFont(.statValue, weight: .bold, design: .rounded)
-                .foregroundStyle(high ? Color.red : Color.primary)
+                .foregroundStyle(high ? Color.red : Color.appAccent)
                 .accessibilityLabel("\(label) \(value)\(high ? ", high" : "")")
         }
     }

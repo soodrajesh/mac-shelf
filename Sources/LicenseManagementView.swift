@@ -11,18 +11,29 @@ struct LicenseManagementView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 if licenseState.isVerifying {
                     ProgressView()
                         .controlSize(.small)
+                        .frame(width: 28, height: 28)
+                } else if licenseState.isProLicensed {
+                    // Per DESIGN-SYSTEM.md's license pattern: a filled
+                    // Color.appAccent checkmark circle when active, not the
+                    // generic green used elsewhere for plain success states.
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.appAccent)
+                        .frame(width: 28, height: 28)
                 } else {
-                    Image(systemName: licenseState.isProLicensed ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(licenseState.isProLicensed ? .green : .secondary)
+                    Image(systemName: "circle")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 28, height: 28)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("MacShelf Pro")
-                        .appFont(.headline)
+                        .appFont(.headline, weight: .bold)
                     Text(licenseState.isVerifying
                          ? "Verifying…"
                          : (licenseState.isProLicensed ? "License Active" : "Free Version"))
@@ -32,9 +43,7 @@ struct LicenseManagementView: View {
 
                 Spacer()
             }
-            .padding(12)
-            .background(Color(.controlBackgroundColor))
-            .cornerRadius(8)
+            .cardStyle(cornerRadius: 10, padding: 12)
 
             if !licenseState.verificationMessage.isEmpty {
                 HStack(spacing: 8) {
@@ -53,7 +62,8 @@ struct LicenseManagementView: View {
                     Text(licenseState.storedLicenseKey.isEmpty ? "Enter License Key" : "Update License")
                         .appFont(.body)
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.borderedProminent)
+                .tint(Color.appAccent)
 
                 if !licenseState.storedLicenseKey.isEmpty {
                     Button(action: licenseState.clear) {
@@ -132,6 +142,8 @@ struct LicenseEntrySheet: View {
                 Spacer()
                 Button("Save License") { saveLicense() }
                     .keyboardShortcut(.defaultAction)
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.appAccent)
                     .disabled(licenseKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
 

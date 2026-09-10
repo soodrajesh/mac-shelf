@@ -27,10 +27,13 @@ private struct AppearanceTab: View {
     @AppStorage("textSize") private var textSize = TextSizeSetting.medium
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Appearance")
-                    .appFont(.headline)
+                HStack(spacing: 8) {
+                    IconTile(systemName: "paintbrush.fill", tileSize: 22)
+                    Text("Appearance")
+                        .appFont(.headline, weight: .bold)
+                }
                 Picker("", selection: $appearanceMode) {
                     ForEach(AppearanceMode.allCases) { mode in
                         Label(mode.label, systemImage: mode.symbol).tag(mode)
@@ -38,11 +41,16 @@ private struct AppearanceTab: View {
                 }
                 .pickerStyle(.inline)
                 .labelsHidden()
+                .tint(Color.appAccent)
             }
+            .cardStyle(padding: 14)
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("Text Size")
-                    .appFont(.headline)
+                HStack(spacing: 8) {
+                    IconTile(systemName: "textformat.size", tileSize: 22)
+                    Text("Text Size")
+                        .appFont(.headline, weight: .bold)
+                }
                 Picker("", selection: $textSize) {
                     ForEach(TextSizeSetting.allCases) { size in
                         Text(size.label).tag(size)
@@ -50,11 +58,14 @@ private struct AppearanceTab: View {
                 }
                 .pickerStyle(.inline)
                 .labelsHidden()
+                .tint(Color.appAccent)
             }
+            .cardStyle(padding: 14)
 
             Spacer()
         }
         .padding(20)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: appearanceMode)
     }
 }
 
@@ -72,19 +83,26 @@ private struct LicenseTab: View {
 
 private struct AboutTab: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 12) {
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
 
-            Text("MacShelf \(version)")
-                .appFont(.headline)
-            Text("Menu-bar system monitor, quick tools, clipboard history, and notepad.")
-                .appFont(.callout)
-                .foregroundStyle(.secondary)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    IconTile(systemName: "shippingbox.fill", tileSize: 22)
+                    Text("MacShelf \(version)")
+                        .appFont(.headline, weight: .bold)
+                }
+                Text("Menu-bar system monitor, quick tools, clipboard history, and notepad.")
+                    .appFont(.callout)
+                    .foregroundStyle(.secondary)
 
-            Button("Report a Bug or Request a Feature…") {
-                NSWorkspace.shared.open(URL(string: "https://github.com/soodrajesh/mac-tools/issues/new")!)
+                Button("Report a Bug or Request a Feature…") {
+                    NSWorkspace.shared.open(URL(string: "https://github.com/soodrajesh/mac-tools/issues/new")!)
+                }
+                .buttonStyle(.link)
+                .tint(Color.appAccent)
             }
-            .buttonStyle(.link)
+            .cardStyle(padding: 14)
 
             Spacer()
         }

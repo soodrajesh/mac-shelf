@@ -49,7 +49,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.addObserver(self, forKeyPath: "effectiveAppearance", options: [.new], context: nil)
 
         popover = NSPopover()
-        popover.contentSize = NSSize(width: 280, height: 240)
+        popover.contentSize = NSSize(width: 300, height: 280)
         popover.behavior = .transient
         popover.animates = false
         popover.delegate = self

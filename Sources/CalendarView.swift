@@ -13,7 +13,7 @@ struct CalendarView: View {
                     Image(systemName: "chevron.left")
                         .appFont(.caption2, weight: .semibold)
                         .frame(width: 16, height: 16)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.appAccent)
                 }
                 .buttonStyle(.plain)
                 .help("Previous month")
@@ -37,7 +37,7 @@ struct CalendarView: View {
                     Image(systemName: "chevron.right")
                         .appFont(.caption2, weight: .semibold)
                         .frame(width: 16, height: 16)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(Color.appAccent)
                 }
                 .buttonStyle(.plain)
                 .help("Next month")
@@ -64,7 +64,9 @@ struct CalendarView: View {
                 }
             }
         }
-        .frame(width: 260, height: 190)
+        .cardStyle(cornerRadius: 10, padding: 8)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: displayedMonth)
+        .frame(width: 280, height: 220)
     }
 
     @ViewBuilder
@@ -75,7 +77,7 @@ struct CalendarView: View {
                 .appFont(.caption2, weight: .semibold)
                 .foregroundStyle(isCurrentMonth(date) ? (isToday(date) ? Color.white : Color.primary) : Color.secondary.opacity(0.6))
                 .frame(width: 22, height: 22)
-                .background(isToday(date) ? Color.accentColor : Color.clear)
+                .background(isToday(date) ? Color.appAccent : Color.clear)
                 .cornerRadius(5)
                 .overlay(alignment: .topTrailing) {
                     if isCurrentMonth(date) && IrishHolidays.isHoliday(date) {
