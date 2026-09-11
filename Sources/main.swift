@@ -47,9 +47,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
         // Re-render when the menu bar switches between light/dark.
         statusItem.button?.addObserver(self, forKeyPath: "effectiveAppearance", options: [.new], context: nil)
+        // Keeps the popover's real AppKit content size in sync if Text
+        // Size changes while the app is running (Settings writes through
+        // @AppStorage to the same UserDefaults key) — without this, the
+        // fix only takes effect after a relaunch.
+        UserDefaults.standard.addObserver(self, forKeyPath: "textSize", options: [.new], context: nil)
 
         popover = NSPopover()
-        popover.contentSize = NSSize(width: 300, height: 280)
+        // `NSPopover.contentSize` is a real AppKit constraint independent of
+        // whatever size SwiftUI thinks its content wants — a fixed 300x280
+        // here was clipping the bottom of the Stats tab whenever Settings'
+        // Text Size grew the content taller (Extra Large ≈1.3x), no matter
+        // how the SwiftUI-side frames were scaled to compensate. Compute
+        // from the actual stored Text Size, and keep it live below.
+        popover.contentSize = NSSize(width: 300, height: 280 * Self.currentTextScale())
         popover.behavior = .transient
         popover.animates = false
         popover.delegate = self
@@ -137,8 +148,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     override func observeValue(forKeyPath keyPath: String?, of object: Any?,
                                 change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        guard keyPath == "effectiveAppearance" else { return }
-        refreshStatusItem()
+        if keyPath == "effectiveAppearance" {
+            refreshStatusItem()
+        } else if keyPath == "textSize" {
+            popover.contentSize = NSSize(width: 300, height: 280 * Self.currentTextScale())
+        }
+    }
+
+    private static func currentTextScale() -> CGFloat {
+        let raw = UserDefaults.standard.string(forKey: "textSize") ?? TextSizeSetting.medium.rawValue
+        return (TextSizeSetting(rawValue: raw) ?? .medium).scaleFactor
     }
 
     private func refreshStatusItem() {
@@ -267,6 +286,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func quit() {
         statusItem.button?.removeObserver(self, forKeyPath: "effectiveAppearance")
+        UserDefaults.standard.removeObserver(self, forKeyPath: "textSize")
         NSApplication.shared.terminate(nil)
     }
 }

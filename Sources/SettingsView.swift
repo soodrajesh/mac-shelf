@@ -13,12 +13,14 @@ struct SettingsView: View {
         TabView {
             AppearanceTab()
                 .tabItem { Label("Appearance", systemImage: "paintbrush") }
+            CalendarTab()
+                .tabItem { Label("Calendar", systemImage: "calendar") }
             LicenseTab(licenseState: licenseState)
                 .tabItem { Label("License", systemImage: "checkmark.seal") }
             AboutTab()
                 .tabItem { Label("About", systemImage: "info.circle") }
         }
-        .frame(width: 420, height: 360)
+        .frame(width: 500, height: 380)
     }
 }
 
@@ -66,6 +68,39 @@ private struct AppearanceTab: View {
         }
         .padding(20)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: appearanceMode)
+    }
+}
+
+private struct CalendarTab: View {
+    @AppStorage("holidayCountryCode") private var holidayCountryCode: String = HolidayCountry.defaultCountryCode
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    IconTile(systemName: "calendar.badge.clock", tileSize: 22)
+                    Text("Public Holidays")
+                        .appFont(.headline, weight: .bold)
+                }
+                Text("Pick a country to highlight its public holidays on the calendar with a small orange dot.")
+                    .appFont(.callout)
+                    .foregroundStyle(.secondary)
+
+                Picker("Country", selection: $holidayCountryCode) {
+                    Text("None").tag("")
+                    Divider()
+                    ForEach(HolidayCountry.supportedCountries) { country in
+                        Text(country.name).tag(country.code)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(Color.appAccent)
+            }
+            .cardStyle(padding: 14)
+
+            Spacer()
+        }
+        .padding(20)
     }
 }
 

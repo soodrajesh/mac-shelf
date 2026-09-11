@@ -2,6 +2,8 @@ import SwiftUI
 
 struct CalendarView: View {
     @State private var displayedMonth = Date()
+    @AppStorage("holidayCountryCode") private var holidayCountryCode: String = HolidayCountry.defaultCountryCode
+    @StateObject private var holidayStore = PublicHolidayStore()
     let calendar = Calendar(identifier: .gregorian)
     let columns = Array(repeating: GridItem(.flexible()), count: 7)
 
@@ -9,15 +11,7 @@ struct CalendarView: View {
         VStack(spacing: 5) {
             // Month header with prev/next navigation
             HStack {
-                Button(action: previousMonth) {
-                    Image(systemName: "chevron.left")
-                        .appFont(.caption2, weight: .semibold)
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(Color.appAccent)
-                }
-                .buttonStyle(.plain)
-                .help("Previous month")
-                .accessibilityLabel("Previous month")
+                navButton("chevron.left", help: "Previous month", action: previousMonth)
 
                 Spacer()
 
@@ -33,17 +27,9 @@ struct CalendarView: View {
 
                 Spacer()
 
-                Button(action: nextMonth) {
-                    Image(systemName: "chevron.right")
-                        .appFont(.caption2, weight: .semibold)
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(Color.appAccent)
-                }
-                .buttonStyle(.plain)
-                .help("Next month")
-                .accessibilityLabel("Next month")
+                navButton("chevron.right", help: "Next month", action: nextMonth)
             }
-            .frame(height: 20)
+            .frame(height: 26)
 
             // Day-of-week headers
             HStack(spacing: 0) {
@@ -67,6 +53,38 @@ struct CalendarView: View {
         .cardStyle(cornerRadius: 10, padding: 8)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: displayedMonth)
         .frame(width: 280, height: 220)
+        .onAppear { loadHolidays() }
+        .onChange(of: displayedMonth) { _ in loadHolidays() }
+        .onChange(of: holidayCountryCode) { _ in
+            holidayStore.reset()
+            loadHolidays()
+        }
+    }
+
+    /// Loads whichever year(s) the current 6-row grid can touch — usually
+    /// one, but a grid can spill into the next/previous year at a Dec/Jan
+    /// boundary (e.g. December's trailing cells reach into January).
+    private func loadHolidays() {
+        guard !holidayCountryCode.isEmpty else { return }
+        let years = Set(gridDates().compactMap { $0 }.map { calendar.component(.year, from: $0) })
+        holidayStore.ensureLoaded(country: holidayCountryCode, years: years)
+    }
+
+    /// Bigger, filled-circle month-nav buttons — the old bare 16pt chevrons
+    /// read as barely-there against the card background. A tinted circle
+    /// tile (same idea as `IconTile`) gives them real visual weight and a
+    /// larger hit target.
+    private func navButton(_ systemName: String, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .appFont(.callout, weight: .heavy)
+                .foregroundStyle(Color.appAccent)
+                .frame(width: 24, height: 24)
+                .background(Circle().fill(Color.appAccent.opacity(0.15)))
+        }
+        .buttonStyle(.plain)
+        .help(help)
+        .accessibilityLabel(help)
     }
 
     @ViewBuilder
@@ -80,7 +98,7 @@ struct CalendarView: View {
                 .background(isToday(date) ? Color.appAccent : Color.clear)
                 .cornerRadius(5)
                 .overlay(alignment: .topTrailing) {
-                    if isCurrentMonth(date) && IrishHolidays.isHoliday(date) {
+                    if isCurrentMonth(date) && !holidayCountryCode.isEmpty && holidayStore.isHoliday(date) {
                         Circle()
                             .fill(Color.orange)
                             .frame(width: 4, height: 4)
