@@ -22,8 +22,28 @@ final class ClipboardStore: ObservableObject {
         let dir = support.appendingPathComponent("ClipKeep", isDirectory: true)
         imagesDir = dir.appendingPathComponent("images", isDirectory: true)
         indexFile = dir.appendingPathComponent("history.json")
-        try? FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
+        // Clipboard history is the most sensitive thing this app keeps —
+        // whatever you copied, verbatim. macOS's default 0755/0644 leaves it
+        // readable by every other local account on the Mac; 0700/0600 keeps
+        // it to this user. Applied on every launch, not just first create,
+        // so histories written by older builds get tightened too.
+        try? FileManager.default.createDirectory(
+            at: imagesDir,
+            withIntermediateDirectories: true,
+            attributes: [.posixPermissions: 0o700]
+        )
+        Self.restrictPermissions(of: dir, to: 0o700)
+        Self.restrictPermissions(of: imagesDir, to: 0o700)
         load()
+        Self.restrictPermissions(of: indexFile, to: 0o600)
+    }
+
+    /// Best-effort `chmod`. Silent on failure: a history file that can't be
+    /// locked down is still a working history file, and refusing to run
+    /// would be a worse outcome than the permissions being loose.
+    static func restrictPermissions(of url: URL, to mode: Int) {
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+        try? FileManager.default.setAttributes([.posixPermissions: mode], ofItemAtPath: url.path)
     }
 
     func imageURL(for filename: String) -> URL {
@@ -48,7 +68,11 @@ final class ClipboardStore: ObservableObject {
             return
         }
         let filename = "\(UUID().uuidString).png"
-        try? png.write(to: imagesDir.appendingPathComponent(filename))
+        let imageFile = imagesDir.appendingPathComponent(filename)
+        try? png.write(to: imageFile)
+        // Copied images are as sensitive as copied text — a screenshot of a
+        // password reset email is a clipboard item like any other.
+        Self.restrictPermissions(of: imageFile, to: 0o600)
         items.insert(ClipboardItem(id: UUID(), kind: .image, timestamp: Date(), text: nil, imageFile: filename), at: 0)
         trim()
         save()
@@ -100,6 +124,9 @@ final class ClipboardStore: ObservableObject {
     private func save() {
         guard let data = try? JSONEncoder().encode(items) else { return }
         try? data.write(to: indexFile, options: .atomic)
+        // An atomic write replaces the file, so the mode has to be re-applied
+        // every time rather than set once at creation.
+        Self.restrictPermissions(of: indexFile, to: 0o600)
     }
 
     private static func pngData(for image: NSImage) -> Data? {
