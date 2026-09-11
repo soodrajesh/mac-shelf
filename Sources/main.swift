@@ -42,6 +42,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.isVisible = true
         statusItem.button?.imagePosition = .imageOnly
+        // The icon itself is a live CPU/MEM text readout (see
+        // `refreshStatusItem`/`makeStatusImage`), not a static glyph, so
+        // VoiceOver has nothing to read off it without an explicit
+        // description — a static toolTip plus a live-value accessibility
+        // description (kept current in `refreshStatusItem`) covers both.
+        statusItem.button?.toolTip = "MacShelf — CPU and memory usage"
         statusItem.button?.action = #selector(handleClick)
         statusItem.button?.target = self
         statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -164,10 +170,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func refreshStatusItem() {
         let isDark = statusItem.button?.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
         statusItem.button?.attributedTitle = NSAttributedString(string: "")
-        statusItem.button?.image = makeStatusImage(
+        let image = makeStatusImage(
             cpuValue: stats.cpuText, cpuHigh: stats.cpuHigh,
             memValue: stats.memText, memHigh: stats.memHigh,
             isDark: isDark)
+        image.accessibilityDescription = "MacShelf: CPU \(stats.cpuText), Memory \(stats.memText)"
+        statusItem.button?.image = image
     }
 
     @objc func handleClick() {

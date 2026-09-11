@@ -44,6 +44,7 @@ struct StatsView: View {
     private func statRow(icon: String, label: String, value: String, high: Bool) -> some View {
         HStack(spacing: 8) {
             IconTile(systemName: icon, tileSize: 16)
+                .accessibilityHidden(true)
             Text(label)
                 .appFont(.body, weight: .semibold)
                 .foregroundStyle(.primary)
