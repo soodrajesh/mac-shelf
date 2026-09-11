@@ -117,6 +117,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         Task { await licenseState.refresh() }
+        licenseState.checkForUpdates()
     }
 
     private func handlePastePickerHotkey() {

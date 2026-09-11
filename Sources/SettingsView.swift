@@ -17,6 +17,8 @@ struct SettingsView: View {
                 .tabItem { Label("Calendar", systemImage: "calendar") }
             LicenseTab(licenseState: licenseState)
                 .tabItem { Label("License", systemImage: "checkmark.seal") }
+            UpdatesTab(licenseState: licenseState)
+                .tabItem { Label("Updates", systemImage: "arrow.down.circle") }
             AboutTab()
                 .tabItem { Label("About", systemImage: "info.circle") }
         }
@@ -110,6 +112,49 @@ private struct LicenseTab: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             LicenseManagementView(licenseState: licenseState)
+            Spacer()
+        }
+        .padding(20)
+    }
+}
+
+private struct UpdatesTab: View {
+    @ObservedObject var licenseState: LicenseState
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    IconTile(systemName: "arrow.down.circle.fill", tileSize: 22)
+                    Text("Software Update")
+                        .appFont(.headline, weight: .bold)
+                }
+
+                if let update = licenseState.availableUpdate {
+                    Text("MacShelf \(update.version) is available (you have \(currentVersion))")
+                        .appFont(.callout)
+                    if let notes = update.notes, !notes.isEmpty {
+                        Text(notes).appFont(.callout).foregroundStyle(.secondary)
+                    }
+                    Button("Get It") {
+                        guard let url = URL(string: update.url) else { return }
+                        NSWorkspace.shared.open(url)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.appAccent)
+                } else {
+                    Text("You're on the latest version (\(currentVersion)).")
+                        .appFont(.callout)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button("Check for Updates") { licenseState.checkForUpdates() }
+                    .buttonStyle(.bordered)
+            }
+            .cardStyle(padding: 14)
+
             Spacer()
         }
         .padding(20)
