@@ -40,6 +40,13 @@ final class LicenseState: ObservableObject {
             return
         }
 
+        if OwnerAccess.isOwnerKey(key) {
+            isProLicensed = true
+            verificationMessage = "MacShelf Pro unlocked (owner build)."
+            verificationError = false
+            return
+        }
+
         isVerifying = true
         verificationMessage = ""
         defer { isVerifying = false }

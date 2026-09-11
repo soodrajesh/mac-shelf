@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StatsView: View {
     @ObservedObject var stats: StatsController
+    @Environment(\.textScale) private var textScale
 
     private var secondaryColor: Color { .secondary }
 
@@ -37,7 +38,7 @@ struct StatsView: View {
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: stats.cpuHigh)
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: stats.memHigh)
-        .frame(width: 280, height: 220, alignment: .top)
+        .frame(width: 280, height: 220 * textScale, alignment: .top)
     }
 
     private func statRow(icon: String, label: String, value: String, high: Bool) -> some View {
