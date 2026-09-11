@@ -10,7 +10,7 @@ an Appearance/Text Size settings pane) — see
 `gogenops/apps/landing/mac-apps/DESIGN-SYSTEM.md`.
 
 **v2 visual refresh:** the popover and Settings now use the design system's
-"modern & colorful" v2 pass — a magenta `Color.appAccent` identity color,
+"modern & colorful" v2 pass — an orange `Color.appAccent` identity color,
 tinted rounded-square icon tiles instead of bare SF Symbols, vibrancy
 materials and card layouts throughout, a bolder stat-number type hierarchy,
 spring animations on tab/section switches, and a light-mode audit fix so the

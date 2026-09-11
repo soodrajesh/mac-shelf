@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-11 (2)
+
+Switched the accent color from magenta to orange — distinct from MacHub's amber, still unique in the mac-apps line. Icon gradient and `Color.appAccent` updated to match.
+
 ## 2026-09-11
 
 v2 UI refresh — modern colorful design system: tinted icon tiles, vibrancy materials, card layouts, magenta accent color, improved light mode.

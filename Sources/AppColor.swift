@@ -1,13 +1,14 @@
 import SwiftUI
 
-/// MacShelf's own identity color — magenta/pink, matching the redesigned app
-/// icon's gradient start. Deliberately a fixed app color, not the system
-/// `Color.accentColor`, per `DESIGN-SYSTEM.md`'s v2 "modern & colorful"
-/// refresh: each app in the line now carries its own accent instead of
-/// defaulting to gray/blue. `Color.accentColor` is still used for the one or
-/// two spots that should genuinely track the user's system accent.
+/// MacShelf's own identity color — vivid orange, matching the redesigned app
+/// icon's gradient start (switched from an earlier magenta/pink pass).
+/// Deliberately a fixed app color, not the system `Color.accentColor`, per
+/// `DESIGN-SYSTEM.md`'s v2 "modern & colorful" refresh: each app in the line
+/// now carries its own accent instead of defaulting to gray/blue.
+/// `Color.accentColor` is still used for the one or two spots that should
+/// genuinely track the user's system accent.
 extension Color {
-    static let appAccent = Color(red: 0.88, green: 0.25, blue: 0.55)
+    static let appAccent = Color(red: 1.00, green: 0.42, blue: 0.02)
 }
 
 /// A small rounded-square tile behind an SF Symbol — the single change the
