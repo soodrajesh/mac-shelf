@@ -25,33 +25,31 @@ import Security
 ///   from), or set the `MACSHELF_POLAR_ORG_ID` environment variable to
 ///   override it without a rebuild (e.g. for a TestFlight-style dry run).
 enum PolarConfig {
-    // TODO(polar-setup): Create the "MacShelf Pro" product + license-key
-    // benefit in the Polar dashboard (separate from MacGroom's product —
-    // this is per-app licensing, not a bundle), then replace this
-    // placeholder with the real Organization ID.
-    private static let placeholderOrganizationId = "TODO_POLAR_ORGANIZATION_ID"
+    // MacShelf Pro's product + License Keys benefit now exist, created in
+    // the same `macgroom` Polar organization as MacGroom's own product
+    // (rather than a fully separate org) — so this is the same
+    // Organization ID as MacGroom's. `MACSHELF_POLAR_ORG_ID` can still
+    // override it for a dry run without a rebuild.
+    private static let liveOrganizationId = "41537814-c35a-4def-bf4e-888ef4f530ce"
 
     static var organizationId: String {
-        ProcessInfo.processInfo.environment["MACSHELF_POLAR_ORG_ID"] ?? placeholderOrganizationId
+        ProcessInfo.processInfo.environment["MACSHELF_POLAR_ORG_ID"] ?? liveOrganizationId
     }
 
-    /// `false` until `MACSHELF_POLAR_ORG_ID` is set or the placeholder above
-    /// is replaced with a real Polar Organization ID. `LicenseChecker.verify`
-    /// checks this *before* calling Polar, so a not-yet-configured backend
-    /// fails with a distinct "not available yet" message instead of ever
-    /// reaching the API and coming back as a false "invalid key" (see
-    /// UX-AUDIT.md finding P-1).
-    static var isConfigured: Bool {
-        organizationId != placeholderOrganizationId
+    /// MacShelf Pro's own License Keys benefit — scopes validation to this
+    /// specific product since the org is shared across the mac-apps line
+    /// (see `validateRemote`'s comment).
+    static var benefitId: String {
+        ProcessInfo.processInfo.environment["MACSHELF_POLAR_BENEFIT_ID"] ?? "5c22f6fc-6245-4fdc-939e-a85226e2bd9b"
     }
 
-    /// TODO(polar-setup): once the product exists, fill in its real
-    /// checkout link (Polar → Products → MacShelf Pro → Share → copy
-    /// checkout link) so `LicenseManagementView`'s "Buy MacShelf Pro" button
-    /// goes somewhere real instead of the gogenops.com product page.
+    static var isConfigured: Bool { true }
+
+    /// Real "MacShelf Pro" checkout link (Polar → Products → MacShelf Pro →
+    /// Share). `MACSHELF_POLAR_CHECKOUT_URL` can still override it.
     static var checkoutURL: URL? {
         URL(string: ProcessInfo.processInfo.environment["MACSHELF_POLAR_CHECKOUT_URL"]
-            ?? "https://gogenops.com/mac-apps/macshelf/")
+            ?? "https://buy.polar.sh/polar_cl_6bOSosrVuw55x7qKDMky4zszRPsYf96ml5iNa22ZnFi")
     }
 }
 
@@ -350,9 +348,17 @@ public class LicenseChecker {
         // Bump this — and test against 2026-10 — before the Jan 2027
         // removal date.
         request.setValue("2026-04", forHTTPHeaderField: "Polar-Version")
+        // MacShelf Pro shares a Polar organization with MacGroom Pro and the
+        // other mac-apps products — the org alone doesn't tell Polar which
+        // product a key was bought for, so a key valid for any of them
+        // would otherwise also validate here. Passing `benefit_id` scopes
+        // the check to MacShelf's own License Keys benefit specifically;
+        // the response's own `benefit_id` is also cross-checked below as a
+        // second line of defense.
         request.httpBody = try JSONEncoder().encode([
             "key": licenseKey,
-            "organization_id": PolarConfig.organizationId
+            "organization_id": PolarConfig.organizationId,
+            "benefit_id": PolarConfig.benefitId
         ])
 
         let (data, httpResponse) = try await send(request)
@@ -367,15 +373,24 @@ public class LicenseChecker {
             let limitActivations: Int?
             let usage: Int?
             let expiresAt: String?
+            let benefitId: String?
 
             enum CodingKeys: String, CodingKey {
                 case key, status, usage
                 case limitActivations = "limit_activations"
                 case expiresAt = "expires_at"
+                case benefitId = "benefit_id"
             }
         }
 
         let response = try decode(PolarLicenseKeyResponse.self, from: data)
+
+        // Belt-and-suspenders: even though the request above already scoped
+        // validation to MacShelf's benefit, confirm the response agrees
+        // before trusting it as a MacShelf Pro license.
+        guard response.benefitId == PolarConfig.benefitId else {
+            throw LicenseCheckError.wrongProduct
+        }
 
         return License(
             key: response.key,
