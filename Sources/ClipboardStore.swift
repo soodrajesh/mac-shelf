@@ -1,7 +1,7 @@
 import AppKit
 import Combine
 
-/// Persists clipboard history to `~/Library/Application Support/ClipKeep/`.
+/// Persists clipboard history to `~/Library/Application Support/MacShelf/Clipboard/`.
 /// Metadata lives in `history.json`; image content is saved alongside as PNG
 /// files so the JSON stays small and nothing is base64-inflated.
 ///
@@ -19,7 +19,8 @@ final class ClipboardStore: ObservableObject {
 
     init() {
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let dir = support.appendingPathComponent("ClipKeep", isDirectory: true)
+        let dir = support.appendingPathComponent("MacShelf", isDirectory: true)
+            .appendingPathComponent("Clipboard", isDirectory: true)
         imagesDir = dir.appendingPathComponent("images", isDirectory: true)
         indexFile = dir.appendingPathComponent("history.json")
         // Clipboard history is the most sensitive thing this app keeps —
@@ -34,8 +35,98 @@ final class ClipboardStore: ObservableObject {
         )
         Self.restrictPermissions(of: dir, to: 0o700)
         Self.restrictPermissions(of: imagesDir, to: 0o700)
+
+        Self.migrateFromClipKeepIfNeeded(
+            support: support, newDir: dir, newImagesDir: imagesDir, newIndexFile: indexFile
+        )
+
         load()
         Self.restrictPermissions(of: indexFile, to: 0o600)
+    }
+
+    /// One-time migration off the pre-rename `ClipKeep/` data directory
+    /// (this app was ClipKeep before it became MacShelf; every other store
+    /// already lives under `MacShelf/`, so this one was the odd one out).
+    ///
+    /// Only runs when the old directory still exists *and* the new location
+    /// has no `history.json` yet (a fresh install, or a migration that
+    /// already happened, both skip this). The copy is verified — decoded
+    /// and checked for the same item count as the original — before the old
+    /// directory is removed. If anything about the copy can't be verified,
+    /// the partial copy at the new location is cleaned up (so the next
+    /// launch retries) and the old `ClipKeep/` directory is left untouched:
+    /// starting with an empty history is a far better outcome here than
+    /// deleting someone's real clipboard history on a botched migration.
+    private static func migrateFromClipKeepIfNeeded(
+        support: URL, newDir: URL, newImagesDir: URL, newIndexFile: URL
+    ) {
+        let fm = FileManager.default
+        let oldDir = support.appendingPathComponent("ClipKeep", isDirectory: true)
+        guard fm.fileExists(atPath: oldDir.path) else { return }
+        guard !fm.fileExists(atPath: newIndexFile.path) else { return }
+
+        let oldIndexFile = oldDir.appendingPathComponent("history.json")
+        let oldImagesDir = oldDir.appendingPathComponent("images", isDirectory: true)
+
+        func resetNewImagesDir() {
+            try? fm.removeItem(at: newImagesDir)
+            try? fm.createDirectory(
+                at: newImagesDir, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700]
+            )
+        }
+
+        guard let oldData = try? Data(contentsOf: oldIndexFile),
+              let oldItems = try? JSONDecoder().decode([ClipboardItem].self, from: oldData)
+        else {
+            // No readable/decodable history.json at the old location — nothing
+            // to migrate. Leave the old directory alone in case it's some
+            // unrelated leftover, and just start fresh.
+            return
+        }
+
+        guard (try? fm.copyItem(at: oldIndexFile, to: newIndexFile)) != nil else {
+            return
+        }
+
+        if fm.fileExists(atPath: oldImagesDir.path) {
+            // `copyItem` refuses to copy into a destination that already
+            // exists — even an empty directory — and `createDirectory` in
+            // `init()` already made an empty `images/` dir, so that has to
+            // be removed (not just emptied-then-recreated) right before the
+            // copy, or the copy fails every time.
+            try? fm.removeItem(at: newImagesDir)
+            guard (try? fm.copyItem(at: oldImagesDir, to: newImagesDir)) != nil else {
+                // Images failed to copy — don't leave a history.json that
+                // references image files which aren't there. Recreate an
+                // empty images/ dir so the store still has a valid one.
+                try? fm.removeItem(at: newIndexFile)
+                resetNewImagesDir()
+                return
+            }
+        }
+
+        // Verify before trusting the copy: it has to decode, and it has to
+        // have exactly as many items as the original.
+        guard let newData = try? Data(contentsOf: newIndexFile),
+              let newItems = try? JSONDecoder().decode([ClipboardItem].self, from: newData),
+              newItems.count == oldItems.count
+        else {
+            try? fm.removeItem(at: newIndexFile)
+            resetNewImagesDir()
+            return
+        }
+
+        // Verified — lock down the migrated copies (copied files/dirs don't
+        // necessarily keep the source's exact mode) and retire the old dir.
+        restrictPermissions(of: newImagesDir, to: 0o700)
+        if let files = try? fm.contentsOfDirectory(atPath: newImagesDir.path) {
+            for f in files {
+                restrictPermissions(of: newImagesDir.appendingPathComponent(f), to: 0o600)
+            }
+        }
+        restrictPermissions(of: newIndexFile, to: 0o600)
+
+        try? fm.removeItem(at: oldDir)
     }
 
     /// Best-effort `chmod`. Silent on failure: a history file that can't be

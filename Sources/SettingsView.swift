@@ -35,6 +35,7 @@ private struct AppearanceTab: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     IconTile(systemName: "paintbrush.fill", tileSize: 22)
+                        .accessibilityHidden(true)
                     Text("Appearance")
                         .appFont(.headline, weight: .bold)
                 }
@@ -52,6 +53,7 @@ private struct AppearanceTab: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     IconTile(systemName: "textformat.size", tileSize: 22)
+                        .accessibilityHidden(true)
                     Text("Text Size")
                         .appFont(.headline, weight: .bold)
                 }
@@ -81,6 +83,7 @@ private struct CalendarTab: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     IconTile(systemName: "calendar.badge.clock", tileSize: 22)
+                        .accessibilityHidden(true)
                     Text("Public Holidays")
                         .appFont(.headline, weight: .bold)
                 }
@@ -128,6 +131,7 @@ private struct UpdatesTab: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     IconTile(systemName: "arrow.down.circle.fill", tileSize: 22)
+                        .accessibilityHidden(true)
                     Text("Software Update")
                         .appFont(.headline, weight: .bold)
                 }
@@ -169,6 +173,7 @@ private struct AboutTab: View {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     IconTile(systemName: "shippingbox.fill", tileSize: 22)
+                        .accessibilityHidden(true)
                     Text("MacShelf \(version)")
                         .appFont(.headline, weight: .bold)
                 }
