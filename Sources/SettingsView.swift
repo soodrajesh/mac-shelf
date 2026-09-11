@@ -132,7 +132,7 @@ private struct AboutTab: View {
                     .foregroundStyle(.secondary)
 
                 Button("Report a Bug or Request a Feature…") {
-                    NSWorkspace.shared.open(URL(string: "https://github.com/soodrajesh/mac-tools/issues/new")!)
+                    NSWorkspace.shared.open(URL(string: "https://github.com/soodrajesh/mac-shelf/issues/new")!)
                 }
                 .buttonStyle(.link)
                 .tint(Color.appAccent)
