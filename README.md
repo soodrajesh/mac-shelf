@@ -17,6 +17,24 @@ spring animations on tab/section switches, and a light-mode audit fix so the
 popover's own vibrancy chrome (not just its SwiftUI content) actually follows
 Settings' Appearance picker instead of always tracking the system appearance.
 
+## Screenshots
+
+| Stats — dark | Stats — light |
+|---|---|
+| ![Stats tab, dark mode: CPU 22%, Memory 96%, top process, network/disk throughput, Free Up Memory](screenshots/stats-dark.png) | ![Stats tab, light mode: same layout at CPU 15%, Memory 93%](screenshots/stats-light.png) |
+
+| Calendar — dark | Calendar — light, holidays marked |
+|---|---|
+| ![Calendar tab, dark mode, September 2026 month grid with today highlighted](screenshots/calendar-dark.png) | ![Calendar tab, light mode, December 2026 with small orange dots marking Christmas Day and St. Stephen's Day](screenshots/calendar-light-holidays.png) |
+
+Public holidays are computed for whichever country you pick in Settings → Calendar, not hand-maintained:
+
+![MacShelf Settings' Calendar tab: a country picker set to Ireland, for highlighting that country's public holidays on the calendar](screenshots/settings-holidays.png)
+
+| Calculator | Clipboard (Pro) | Notepad (Pro) |
+|---|---|---|
+| ![Calculator tab, a basic four-operation calculator](screenshots/calculator-dark.png) | ![Clipboard tab showing recent copies with image thumbnails and sizes](screenshots/clipboard-dark.png) | ![Notepad tab, a scratch pad with auto-save](screenshots/notepad-dark.png) |
+
 Supersedes three predecessor apps (each left intact, still independently buildable):
 
 - [sysmonitor-menubar](https://github.com/soodrajesh/sysmonitor-menubar) — CPU/MEM readout, Free Up Memory
