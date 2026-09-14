@@ -4,8 +4,8 @@ import SwiftUI
 /// MacShelf' Settings pane, opened via the right-click menu's "Settings…"
 /// item (this app has no Dock icon / `Settings` Scene to wire ⌘, to
 /// automatically — see `main.swift`). Tabbed like mac-cleanup's
-/// `SettingsView`: Appearance, Text Size, License, About, in that order per
-/// `DESIGN-SYSTEM.md`.
+/// `SettingsView`: Appearance, Calendar, License, Updates, About, in that
+/// order.
 struct SettingsView: View {
     @ObservedObject var licenseState: LicenseState
 

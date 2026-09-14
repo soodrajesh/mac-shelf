@@ -49,7 +49,7 @@ Supersedes three predecessor apps (each left intact, still independently buildab
 - **Left-click** → popover (five tabs, fixed size so switching tabs does not resize the panel)
 - **Right-click** → Free Up Memory, Enable Accessibility (if needed), Settings…, Quit
 - No Dock icon (`LSUIElement`); installs to `/Applications`, ad-hoc signed so Accessibility survives rebuilds
-- **Settings…** → Appearance (System/Light/Dark), Text Size (Small/Medium/Large/Extra Large), License, About
+- **Settings…** → Appearance (System/Light/Dark), Calendar, License, Updates, About
 
 ### Popover tabs
 
@@ -70,8 +70,8 @@ A gated tab shows an "Unlock Pro" prompt instead of silently disabling itself.
 | **⌘⇧V** | Floating searchable paste-picker (↑/↓, Return to paste) — works from any app | Pro |
 | **⌘⇧N** | Open the popover on the **Notepad** tab (or switch to it if the popover is already open) | Pro |
 
-Both hotkeys stay registered when unlicensed; firing either one opens Settings'
-License tab instead of the picker/notepad.
+Both hotkeys stay registered when unlicensed; firing either one opens
+Settings instead of the picker/notepad (no auto-jump to the License tab).
 
 ## MacShelf Pro
 
@@ -97,14 +97,10 @@ API, the same backend MacGroom (mac-cleanup) uses, structurally ported from
 - `Sources/UnlockProView.swift` — the in-tab upsell shown when a gated
   feature isn't licensed.
 
-**Not yet live** — `PolarConfig.organizationId` in
-`MacShelfLicenseCheck.swift` is a placeholder (`TODO_POLAR_ORGANIZATION_ID`)
-until the MacShelf Pro product exists in Polar. Until then, every license
-check 404s and the app fails closed to the free tier — it does not crash.
-See that file's doc comment for the exact TODO checklist (create the
-product + license-key benefit in Polar, fill in the org ID or set
-`MACSHELF_POLAR_ORG_ID`, set a real checkout URL, rotate the Keychain-cache
-HMAC key from its placeholder).
+**Live** — `PolarConfig` in `MacShelfLicenseCheck.swift` points at the real
+MacShelf Pro product/benefit in Polar. A license key activates on up to 3
+Macs (`Limit Activations` on the Polar benefit); users can free up a slot
+themselves via Polar's customer portal if they retire a Mac.
 
 ### Notepad editing
 
